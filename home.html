@@ -73,6 +73,41 @@
             color: #4f46e5;
         }
 
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .auth-buttons button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .auth-buttons .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .auth-buttons .btn-secondary:hover {
+            background: white;
+            color: #4f46e5;
+        }
+
+        .auth-buttons .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .auth-buttons .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+
         .cta-button {
             background: linear-gradient(135deg, #4f46e5, #7c3aed);
             color: white;
@@ -405,6 +440,73 @@
             .nav-links {
                 gap: 1rem;
             }
+
+            .auth-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .auth-buttons button {
+                width: 100%;
+            }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        .modal h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal input {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .modal button {
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -418,7 +520,10 @@
                 <li><a href="#rules">How to Play</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
-            <a href="./index.html" class="cta-button">Play Now</a>
+            <div class="auth-buttons">
+                <button class="btn-secondary" id="login-btn">Login</button>
+                <button class="btn-primary" id="register-btn">Register</button>
+            </div>
         </nav>
     </header>
 
@@ -613,6 +718,34 @@
         </div>
     </footer>
 
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="login-close">&times;</span>
+            <h2>Login</h2>
+            <form id="login-form">
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Password" required>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="register-close">&times;</span>
+            <h2>Register</h2>
+            <form id="register-form">
+                <input type="text" placeholder="Username" required>
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Password" required>
+                <input type="password" placeholder="Confirm Password" required>
+                <button type="submit" class="btn-primary">Register</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -650,6 +783,52 @@
                 timeLeft = 30;
             }
         }, 1000);
+
+        // Modal functionality
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const loginModal = document.getElementById('login-modal');
+        const registerModal = document.getElementById('register-modal');
+        const loginClose = document.getElementById('login-close');
+        const registerClose = document.getElementById('register-close');
+
+        loginBtn.onclick = function() {
+            loginModal.style.display = 'block';
+        }
+
+        registerBtn.onclick = function() {
+            registerModal.style.display = 'block';
+        }
+
+        loginClose.onclick = function() {
+            loginModal.style.display = 'none';
+        }
+
+        registerClose.onclick = function() {
+            registerModal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == loginModal) {
+                loginModal.style.display = 'none';
+            }
+            if (event.target == registerModal) {
+                registerModal.style.display = 'none';
+            }
+        }
+
+        // Form submissions (dummy)
+        document.getElementById('login-form').onsubmit = function(e) {
+            e.preventDefault();
+            alert('Login successful!');
+            loginModal.style.display = 'none';
+        }
+
+        document.getElementById('register-form').onsubmit = function(e) {
+            e.preventDefault();
+            alert('Registration successful!');
+            registerModal.style.display = 'none';
+        }
     </script>
 </body>
 </html>
