@@ -376,12 +376,10 @@
 
 <script type="module">
 import { requireAuth, getUser, getBalance, getTransactions, logout, login, formatCurrency } from './js/user.js';
-import { initAll, getVipLevel, getAchievements, getReferralCode, shareReferral, getDailyStreak, countUp, copyText, initReveal, toggleDarkMode, initDarkMode } from './js/enhancements.js';
+import { initAll, getVipLevel, getAchievements, getReferralCode, shareReferral, getDailyStreak, countUp, copyText, toggleDarkMode } from './js/enhancements.js';
 
 if (!requireAuth('home.html')) throw new Error('Not logged in');
 initAll();
-initReveal();
-initDarkMode();
 
 let user = getUser();
 
@@ -402,7 +400,7 @@ function render() {
     document.getElementById('subPhone').textContent = user.phone || 'Not set';
 
     // Stats
-    countUp(document.getElementById('balDisp'), bal, 800, '₹', '');
+    countUp(document.getElementById('balDisp'), bal, 800, '₹', '', 2);
     const bets = txs.filter(t => t.type === 'bet' || t.type === 'win');
     document.getElementById('txCount').textContent = bets.length;
     const days = user.createdAt ? Math.floor((Date.now() - new Date(user.createdAt)) / 86400000) + 1 : 1;
@@ -418,13 +416,13 @@ function render() {
 
     const totalWon  = wins.reduce((s,t)=>s+t.amount,0);
     const totalLost = losses.reduce((s,t)=>s+t.amount,0);
-    countUp(document.getElementById('totalWonStat'), totalWon, 600, '₹', '');
-    countUp(document.getElementById('totalLostStat'), totalLost, 600, '₹', '');
+    countUp(document.getElementById('totalWonStat'), totalWon, 600, '₹', '', 2);
+    countUp(document.getElementById('totalLostStat'), totalLost, 600, '₹', '', 2);
 
     // VIP
     const wagered = losses.reduce((s,t) => s+t.amount, 0) + wins.reduce((s,t) => s + (t.amount / 2), 0);
     const vip = getVipLevel(wagered);
-    countUp(document.getElementById('vipWagered'), wagered, 800, '₹', '');
+    countUp(document.getElementById('vipWagered'), wagered, 800, '₹', '', 2);
     document.getElementById('vipBadge').className = `vip-badge ${vip.class}`;
     document.getElementById('vipBadge').textContent = `${vip.emoji} ${vip.level}`;
     document.getElementById('vipBadgeFull').className = `vip-badge ${vip.class}`;

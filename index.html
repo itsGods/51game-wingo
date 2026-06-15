@@ -5356,18 +5356,16 @@ function triggerWinEffects(amount) {
     }
 }
 
-// Hook into game result to show loss state
+// Hook into game result to show win/loss state on the dialog
 const winDialog = document.querySelector('.WinningTip__C');
 if (winDialog) {
     new MutationObserver(() => {
         const bonusEl = winDialog.querySelector('.bonus');
-        if (bonusEl) {
-            const bonusVal = parseFloat((bonusEl.textContent || '').replace(/[₹,]/g, ''));
-            if (!isNaN(bonusVal) && bonusVal === 0) {
-                winDialog.classList.remove('is-win');
-                winDialog.classList.add('is-loss');
-            }
-        }
+        if (!bonusEl) return;
+        const txt = (bonusEl.textContent || '').trim();
+        const isLoss = txt.toLowerCase().includes('lost') || txt === '';
+        winDialog.classList.toggle('is-win', !isLoss);
+        winDialog.classList.toggle('is-loss', isLoss);
     }).observe(winDialog, { childList: true, subtree: true });
 }
 
@@ -5377,10 +5375,13 @@ const HOT_COLORS = {
     4:'red-n', 5:'mixed-n', 6:'red-n', 7:'green-n', 8:'red-n', 9:'green-n'
 };
 function updateHotNumbers() {
-    const txs = getTransactions();
+    // Read drawn numbers directly from the game record table DOM
+    const numEls = document.querySelectorAll('.GameRecord__C-body .GameRecord__C-body-num');
+    if (!numEls.length) return;
     const map = {};
-    txs.slice(0, 30).forEach(tx => {
-        if (tx.result !== undefined) { map[tx.result] = (map[tx.result] || 0) + 1; }
+    numEls.forEach(el => {
+        const n = parseInt(el.textContent.trim(), 10);
+        if (!isNaN(n) && n >= 0 && n <= 9) map[n] = (map[n] || 0) + 1;
     });
     const hot = Object.entries(map).sort((a,b) => b[1]-a[1]).slice(0, 4).map(([n]) => parseInt(n));
     if (hot.length < 1) return;

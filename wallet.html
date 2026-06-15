@@ -262,11 +262,10 @@
 
 <script type="module">
 import { requireAuth, getUser, getBalance, setBalance, getTransactions, addTransaction, formatCurrency } from './js/user.js';
-import { initAll, countUp, copyText, initReveal } from './js/enhancements.js';
+import { initAll, countUp, copyText } from './js/enhancements.js';
 
 if (!requireAuth('home.html')) throw new Error('Not logged in');
 initAll();
-initReveal();
 
 const user = getUser();
 let currentFilter = 'all';
@@ -279,16 +278,16 @@ function render() {
     // Balance with count-up animation
     const balEl = document.getElementById('balanceDisplay');
     const prevBal = parseFloat(balEl.textContent.replace(/[₹,]/g, '')) || 0;
-    countUp(balEl, bal, 800, '₹', '');
+    countUp(balEl, bal, 800, '₹', '', 2);
     document.getElementById('uidDisplay').textContent = user.uid || '';
 
     // Wallet stats
     const totalWon  = txs.filter(t => t.type === 'win').reduce((s,t) => s + t.amount, 0);
     const totalDep  = txs.filter(t => t.type === 'deposit').reduce((s,t) => s + t.amount, 0);
     const totalBet  = txs.filter(t => t.type === 'bet').reduce((s,t) => s + t.amount, 0);
-    countUp(document.getElementById('totalWon'), totalWon, 600, '₹', '');
-    countUp(document.getElementById('totalDep'), totalDep, 600, '₹', '');
-    countUp(document.getElementById('totalBet'), totalBet, 600, '₹', '');
+    countUp(document.getElementById('totalWon'), totalWon, 600, '₹', '', 2);
+    countUp(document.getElementById('totalDep'), totalDep, 600, '₹', '', 2);
+    countUp(document.getElementById('totalBet'), totalBet, 600, '₹', '', 2);
 
     // Sparkline
     renderSparkline(txs);

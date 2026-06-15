@@ -31,7 +31,7 @@ let currentGame = null;
 let isTransitioning = false;
 
 export function onClicked(item) {
-  console.log(`Clicked: ${item}`);
+  // Reserved for future game-switch side effects
 }
 
 // Pre-fetch game data
@@ -106,8 +106,6 @@ async function startNewGameCycle(gameData, retryCount = 0) {
 
   } catch (error) {
     console.error("Error in game cycle:", error);
-    if (period_time) period_time.textContent = "Retrying...";
-    
     // Progressive retry with backoff
     const retryDelay = Math.min(1000 * Math.pow(1.5, retryCount), 5000);
     setTimeout(() => {
@@ -136,12 +134,8 @@ async function handleApiResponse(apiResponse, params) {
 
 export async function handleGameItemClicked(item, timeLeftName) {
   const gameData = GAME_DETAILS[item];
-  console.log(gameData);
-  
-  
   if (!gameData) {
     console.error("Unknown game clicked");
-    if (period_time) period_time.textContent = "N/A";
     return;
   }
 

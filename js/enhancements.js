@@ -31,17 +31,21 @@ export function initReveal() {
 }
 
 // ── 3. Animated count-up ─────────────────
-export function countUp(el, target, duration = 1200, prefix = '', suffix = '') {
+// decimals: -1 = auto (0 for whole numbers, 2 for floats), or pass explicit decimal places
+export function countUp(el, target, duration = 1200, prefix = '', suffix = '', decimals = -1) {
     if (!el) return;
+    const dp = decimals >= 0 ? decimals : (Number.isInteger(target) ? 0 : 2);
+    const fmt = v => dp === 0
+        ? Math.floor(v).toLocaleString('en-IN')
+        : parseFloat(v.toFixed(dp)).toLocaleString('en-IN', { minimumFractionDigits: dp, maximumFractionDigits: dp });
     const start = performance.now();
-    const startVal = parseFloat(el.textContent.replace(/[^0-9.]/g,'')) || 0;
+    const startVal = parseFloat(el.textContent.replace(/[^0-9.]/g, '')) || 0;
     const step = (now) => {
         const p = Math.min((now - start) / duration, 1);
         const ease = 1 - Math.pow(1 - p, 3);
         const current = startVal + (target - startVal) * ease;
-        el.textContent = prefix + (Number.isInteger(target) ? Math.floor(current).toLocaleString('en-IN') : current.toFixed(2)) + suffix;
+        el.textContent = prefix + fmt(p < 1 ? current : target) + suffix;
         if (p < 1) requestAnimationFrame(step);
-        else el.textContent = prefix + (Number.isInteger(target) ? Math.floor(target).toLocaleString('en-IN') : target.toFixed(2)) + suffix;
     };
     requestAnimationFrame(step);
 }
@@ -168,20 +172,10 @@ export function getStreak(txs) {
     let streak = 0;
     let streakType = null;
     for (const tx of txs) {
-        if (tx.type === 'win') {
-            if (streakType === 'win') streak++;
-            else { streakType = 'win'; streak = 1; }
-        } else if (tx.type === 'bet') {
-            if (streakType === 'loss') streak++;
-            else { streakType = 'loss'; streak = 1; }
-        } else continue;
-        break;
-    }
-    // Extend streak from full list
-    for (let i = 1; i < txs.length; i++) {
-        const t = txs[i];
-        const thisType = t.type === 'win' ? 'win' : t.type === 'bet' ? 'loss' : null;
-        if (thisType === streakType) streak++;
+        const thisType = tx.type === 'win' ? 'win' : tx.type === 'bet' ? 'loss' : null;
+        if (!thisType) continue;
+        if (streakType === null) { streakType = thisType; streak = 1; }
+        else if (thisType === streakType) { streak++; }
         else break;
     }
     return { count: streak, type: streakType };

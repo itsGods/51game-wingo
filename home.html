@@ -641,19 +641,16 @@
 
 <script type="module">
 import { isLoggedIn, login, register } from './js/user.js';
-import { initAll, initParticles, startLiveFeed, generateFeedItem, countUp, confetti, initReveal } from './js/enhancements.js';
+import { initAll, initParticles, startLiveFeed, countUp, confetti, toggleDarkMode } from './js/enhancements.js';
 
 // ── Redirect if already logged in ─────────
 if (isLoggedIn()) { window.location.href = 'index.html'; }
 
-// ── Init global enhancements ───────────────
+// ── Init global enhancements (ripple + scroll-reveal + dark mode) ─
 initAll();
 
 // ── Particles in hero bg ───────────────────
 initParticles(document.getElementById('particlesBg'));
-
-// ── Scroll reveal ─────────────────────────
-initReveal();
 
 // ── Animate stats ─────────────────────────
 window.addEventListener('load', () => {
@@ -743,8 +740,8 @@ window.togglePw = function(id, btn) {
 
 // ── Real-time validation ──────────────────
 window.validateField = function(inp, test, errMsg, okMsg) {
-    const hintId = 'hint' + inp.id.charAt(0).toUpperCase() + inp.id.slice(1).replace('reg','').replace('R','r');
-    const hint = document.getElementById('hint' + inp.id.replace('reg','').charAt(0).toUpperCase() + inp.id.replace('reg','').slice(1));
+    const key = inp.id.replace('reg', '');
+    const hint = document.getElementById('hint' + key.charAt(0).toUpperCase() + key.slice(1));
     if (!inp.value) { inp.classList.remove('valid','invalid'); if (hint) hint.className = 'field-hint'; return; }
     const ok = test(inp.value);
     inp.classList.toggle('valid', ok);
@@ -801,7 +798,6 @@ window.doRegister = function() {
 };
 
 // ── Dark mode toggle ─────────────────────
-import { toggleDarkMode } from './js/enhancements.js';
 document.getElementById('darkToggle').onclick = () => {
     const isDark = toggleDarkMode();
     document.getElementById('darkToggle').textContent = isDark ? '☀️' : '🌙';

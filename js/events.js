@@ -24,7 +24,6 @@ export function initGameListEvents() {
 
                 const textContent = item.textContent.trim();
                 const formattedText = textContent.replace(/Go(\d+)/g, 'Go $1');
-                console.log('Game item clicked:', formattedText);
 
                 handleGameItemClicked(formattedText, timeLeftName);
                 onClicked(formattedText);
@@ -124,6 +123,7 @@ export function handleBettingOverlay() {
                 dialogDiv?.style.setProperty('display', 'none');
             }
         };
+
         checkMarkVisibility();
         const observer = new MutationObserver(checkMarkVisibility);
         observer.observe(bettingCMark, { attributes: true, attributeFilter: ['style'] });
@@ -220,14 +220,7 @@ export function handleBettingOverlay_clicks() {
         let currentValue = parseInt(inputField.value) || 1;
         currentValue = Math.min(100, Math.max(1, currentValue + delta));
         inputField.value = currentValue;
-
-        inputField.value = currentValue;
         selectedQuantity = currentValue;
-
-        quantityItems.forEach(item => {
-            const multiplierValue = parseInt(item.textContent.replace('X', ''));
-            item.classList.toggle('bgcolor', multiplierValue === currentValue);
-        });
 
         quantityItems.forEach(item => item.classList.remove('bgcolor'));
         const activeItem = [...quantityItems].find(item =>
@@ -236,29 +229,9 @@ export function handleBettingOverlay_clicks() {
         if (activeItem) activeItem.classList.add('bgcolor');
 
         updateTotalAmount();
-    }
+    };
     decrementBtn?.addEventListener("click", () => handleQuantityChange(-1));
     incrementBtn?.addEventListener("click", () => handleQuantityChange(1));
-
-    incrementBtn.addEventListener("click", function () {
-        let currentValue = parseInt(inputField.value) || 1;
-        if (currentValue < 100) {
-            currentValue++;
-            inputField.value = currentValue;
-            selectedQuantity = currentValue;
-
-            // Update multiplier highlighting
-            quantityItems.forEach(item => {
-                item.classList.remove("bgcolor");
-                const multiplierValue = parseInt(item.textContent.trim().replace('X', ''));
-                if (multiplierValue === currentValue) {
-                    item.classList.add("bgcolor");
-                }
-            });
-
-            updateTotalAmount();
-        }
-    });
     totalAmountDiv.addEventListener("click", function () {
         let total = selectedBalance * selectedQuantity;
         totalBetAmount = total;
@@ -306,7 +279,6 @@ export function handleBettingOverlay_clicks() {
 export function handle_winLoss() {
     totalAmountDiv.addEventListener("click", function () {
         isBetted = true;
-        console.log(isBetted);
     });
     closeBtn.addEventListener("click", function () {
         winDialog.style.setProperty('display', 'none');
@@ -326,8 +298,6 @@ const toggleHowToOverlay = (show = true) => {
 export function howToBtn() {
     howtoBtn.addEventListener("click", () => {
         toggleHowToOverlay(true);
-        console.log(howtoBtn);
-
     });
     ruleCloseBtn.addEventListener("click", () => {
         toggleHowToOverlay(false);
@@ -339,13 +309,11 @@ document.querySelectorAll('.disableVoice').forEach(element => {
     element.addEventListener('click', () => {
         isVoiceDisabled = !isVoiceDisabled;
         element.classList.toggle('active', isVoiceDisabled);
-        console.log(`Voice ${isVoiceDisabled ? 'disabled' : 'enabled'}`);
     });
 });
 
 export function checkTimeLeft5sec(timeLeft) {
     const secondsLeft = Math.floor(timeLeft / 1000);
-    console.log(secondsLeft);
     if (isVoiceDisabled) return;
     const voice1 = document.getElementById('voice1');
     const voice2 = document.getElementById('voice2');
@@ -369,7 +337,7 @@ export async function whenTimeFinished() {
         winDialog.removeAttribute("style");
     }
     updateWinDialog();
-    await handleMoneys();
+    await handleMoneys().catch(console.error);
     colorTokens();
     isBetted = false;
 }
@@ -378,3 +346,4 @@ howToBtn();
 handle_winLoss();
 handleBettingOverlay();
 handleBettingOverlay_clicks();
+
