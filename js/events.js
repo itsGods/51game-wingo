@@ -7,6 +7,7 @@ import { InsufficientBalance } from './elements.js';
 import { updateWinDialog } from './updateWin.js';
 import { handleMoneys } from './handleMoney.js';
 import { colorTokens } from './colorTokens.js';
+import { setBet, parseBetFromPopupSuffix } from './gameEngine.js';
 export let isBetted = false;
 
 export function initGameListEvents() {
@@ -47,6 +48,9 @@ export function handleBettingOverlay() {
             bettingPopup.className = bettingPopup.className.replace(/Betting__Popup-\d+/, '');
             bettingPopup.classList.add(`Betting__Popup-${newClassSuffix}`);
         }
+        // Track the player's bet type in the game engine
+        const parsed = parseBetFromPopupSuffix(newClassSuffix);
+        if (parsed) setBet(parsed.type, parsed.number);
     };
 
     bigButton?.addEventListener('click', () => {
@@ -358,15 +362,14 @@ export function checkTimeLeft5sec(timeLeft) {
     dialogDiv?.style.setProperty('display', 'none');
     document.body.classList.remove('van-overflow-hidden');
 }
-export function whenTimeFinished() {
+export async function whenTimeFinished() {
     if (isBetted) {
-        console.log("is betted!");
         overlay?.style.setProperty('display', 'none');
         dialogDiv?.style.setProperty('display', 'none');
         winDialog.removeAttribute("style");
     }
     updateWinDialog();
-    handleMoneys();
+    await handleMoneys();
     colorTokens();
     isBetted = false;
 }

@@ -1,8 +1,8 @@
 // gameRecord.js
 import { period_time, period_number } from "./elements.js";
-import { gameData } from "./gameConfig.js";
 import { checkTimeLeft5sec, whenTimeFinished } from "./events.js";
 import { generateOfflinePeriodData } from "./offlineTimer.js";
+import { generateResult, buildResultData, setLastResult } from "./gameEngine.js";
 
 const GAME_INTERVALS = {
   "Win Go 30s": 30000,
@@ -14,7 +14,6 @@ const GAME_INTERVALS = {
 let currentGameType = "Win Go 30s";
 let isTransitioning = false;
 let rowInserted = false;
-let gameDataIndex = 0;
 
 export let timeLeft = 0;
 
@@ -22,42 +21,38 @@ function addNewRow(container, issueNumber) {
     if (!container || rowInserted) return;
     rowInserted = true;
 
+    // Generate the round result HERE — one source of truth shared with all other modules
+    const drawnNum = generateResult();
+    setLastResult(drawnNum);
+    const { randomNumber, isBig, showRed, showGreen, showViolet, mixedColor5, mixedColor0 } = buildResultData(drawnNum);
+
     const newRow = document.createElement("div");
     newRow.className = "van-row";
     newRow.setAttribute("data-v-481307ec", "");
 
-    // Get game data with index cycling
-    const { randomNumber, isBig, showRed, showGreen, mixedColor5 } = gameData[gameDataIndex];
-    gameDataIndex = (gameDataIndex + 1) % gameData.length;
+    // Colour block visibility
+    const showGreenBlock  = (showGreen)  ? 'block' : 'none';
+    const showRedBlock    = (showRed)    ? 'block' : 'none';
+    const showVioletBlock = (showViolet) ? 'block' : 'none';
 
-    // Style calculations
-    const showGreenBlock = mixedColor5 ? 'block' : (showGreen ? 'block' : 'none');
-    const showRedBlock = mixedColor5 ? 'none' : (showRed ? 'block' : 'none');
-    const showVioletBlock = mixedColor5 ? 'block' : 'none';
+    // Number badge class
+    let numClass = 'greenColor';
+    if (mixedColor5 || mixedColor0) numClass = 'mixedColor5';
+    else if (showRed) numClass = 'defaultColor';
 
     newRow.innerHTML = `
-        <div class="van-col van-col--9" data-v-481307ec>
-            ${issueNumber}
-        </div>
+        <div class="van-col van-col--9" data-v-481307ec>${issueNumber}</div>
         <div class="van-col van-col--5 numcenter" data-v-481307ec>
-            <div class="GameRecord__C-body-num ${randomNumber === 5 ? 'mixedColor5' : (showRed ? 'defaultColor' : 'greenColor')}" data-v-481307ec>
-                ${randomNumber}
-            </div>
+            <div class="GameRecord__C-body-num ${numClass}" data-v-481307ec>${randomNumber}</div>
         </div>
         <div class="van-col van-col--5" data-v-481307ec>
             <span data-v-481307ec>${isBig ? "Big" : "Small"}</span>
         </div>
         <div class="van-col van-col--5" data-v-481307ec>
             <div class="GameRecord__C-origin" data-v-481307ec>
-                <div class="GameRecord__C-origin-I ${showRed ? 'red' : ''}" 
-                     style="display: ${showRedBlock}" data-v-481307ec>
-                </div>
-                <div class="GameRecord__C-origin-I green" 
-                     style="display: ${showGreenBlock}" data-v-481307ec>
-                </div>
-                <div class="GameRecord__C-origin-I violet" 
-                     style="display: ${showVioletBlock}" data-v-481307ec>
-                </div>
+                <div class="GameRecord__C-origin-I red"    style="display:${showRedBlock}"    data-v-481307ec></div>
+                <div class="GameRecord__C-origin-I green"  style="display:${showGreenBlock}"  data-v-481307ec></div>
+                <div class="GameRecord__C-origin-I violet" style="display:${showVioletBlock}" data-v-481307ec></div>
             </div>
         </div>
     `;

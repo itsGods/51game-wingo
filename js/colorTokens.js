@@ -1,26 +1,20 @@
 import { tokenParent } from "./elements.js";
-import { gameData } from "./gameConfig.js";
+import { getLastResult } from "./gameEngine.js";
 
-let currentIndex = 0;
 export function colorTokens() {
     const parentDiv = tokenParent;
+    const num = getLastResult();
 
-    const data = gameData[currentIndex];
+    if (num === null || num === undefined || !parentDiv) return;
 
-    // Create a new div element
     const newDiv = document.createElement('div');
     newDiv.setAttribute("data-v-3e4c6499", "");
-    newDiv.classList.add(`n${data.randomNumber}`);
+    newDiv.classList.add(`n${num}`);
 
-    // Add new element at the beginning
     parentDiv.insertBefore(newDiv, parentDiv.firstChild);
 
-    // Remove the last element if it exists
-    if (parentDiv.children.length > 4) {
-        console.log(parentDiv);
-        if (parentDiv.lastElementChild) {
-            parentDiv.removeChild(parentDiv.lastElementChild);
-        }
+    // Keep only the last 4 tokens visible
+    while (parentDiv.children.length > 4) {
+        parentDiv.removeChild(parentDiv.lastElementChild);
     }
-    currentIndex = (currentIndex + 1) % gameData.length;
 }
