@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Profile – 51Game</title>
+    <link rel="icon" href="https://ossimg.51game-game.com/51game/other/h5setting_20240530145344k6oc.ico">
+    <link rel="stylesheet" href="css/app.css">
+    <style>
+        .profile-hero {
+            background: linear-gradient(135deg, #f5a623 0%, #e08800 100%);
+            padding: 24px 20px 32px;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .profile-hero-info h2 { font-size: 20px; font-weight: 800; color: #fff; }
+        .profile-hero-info p { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 3px; }
+        .profile-hero-info .uid { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+        .edit-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            z-index: 500; display: flex; align-items: flex-end;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .edit-overlay.open { opacity: 1; pointer-events: all; }
+        .edit-sheet {
+            background: #fff; border-radius: 24px 24px 0 0;
+            width: 100%; max-width: 480px; margin: 0 auto;
+            padding: 28px 24px 48px;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+        }
+        .edit-overlay.open .edit-sheet { transform: translateY(0); }
+        .toggle-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-info .ti-title { font-size: 14px; font-weight: 500; }
+        .toggle-info .ti-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .toggle {
+            width: 46px; height: 26px;
+            background: #ddd; border-radius: 13px;
+            position: relative; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle.on { background: #f5a623; }
+        .toggle-knob {
+            width: 22px; height: 22px; background: #fff;
+            border-radius: 50%; position: absolute; top: 2px; left: 2px;
+            transition: left 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle.on .toggle-knob { left: 22px; }
+    </style>
+</head>
+<body>
+
+<!-- Profile Hero -->
+<div class="profile-hero">
+    <div class="avatar lg" id="avatarDisp">?</div>
+    <div class="profile-hero-info">
+        <h2 id="usernameDisp">—</h2>
+        <p id="phoneDisp">—</p>
+        <div class="uid" id="uidDisp">—</div>
+    </div>
+</div>
+
+<div class="page-content" style="padding-top:16px">
+
+    <!-- Stats -->
+    <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;gap:0">
+            <div style="flex:1;text-align:center;padding:16px;border-right:1px solid var(--border)">
+                <div style="font-size:20px;font-weight:800;color:var(--primary-dark)" id="balDisp">₹0</div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">Balance</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:16px;border-right:1px solid var(--border)">
+                <div style="font-size:20px;font-weight:800;color:var(--green)" id="txCount">0</div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">Transactions</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:16px">
+                <div style="font-size:20px;font-weight:800;color:#a55eea" id="memberDays">0</div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">Days Active</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account -->
+    <div class="section-title">Account</div>
+    <div class="card" style="margin-bottom:16px">
+        <div class="list-item" onclick="openEdit('username')">
+            <div class="li-icon" style="background:#fff8ec">✏️</div>
+            <div><div class="li-title">Edit Username</div><div class="li-sub" id="subUsername">—</div></div>
+            <div class="li-right">›</div>
+        </div>
+        <div class="list-item" onclick="openEdit('phone')">
+            <div class="li-icon" style="background:#eef5ff">📱</div>
+            <div><div class="li-title">Phone Number</div><div class="li-sub" id="subPhone">—</div></div>
+            <div class="li-right">›</div>
+        </div>
+        <div class="list-item" onclick="openEdit('password')">
+            <div class="li-icon" style="background:#f0faf5">🔑</div>
+            <div><div class="li-title">Change Password</div><div class="li-sub">Keep your account secure</div></div>
+            <div class="li-right">›</div>
+        </div>
+    </div>
+
+    <!-- Wallet -->
+    <div class="section-title">Wallet</div>
+    <div class="card" style="margin-bottom:16px">
+        <a class="list-item" href="wallet.html">
+            <div class="li-icon" style="background:#fff8ec">💳</div>
+            <div><div class="li-title">My Wallet</div><div class="li-sub">Deposit, withdraw & history</div></div>
+            <div class="li-right">›</div>
+        </a>
+    </div>
+
+    <!-- Preferences -->
+    <div class="section-title">Preferences</div>
+    <div class="card" style="margin-bottom:16px">
+        <div class="toggle-row">
+            <div class="toggle-info">
+                <div class="ti-title">Sound Effects</div>
+                <div class="ti-sub">Countdown & result sounds</div>
+            </div>
+            <div class="toggle on" id="toggleSound" onclick="toggle('sound')"><div class="toggle-knob"></div></div>
+        </div>
+        <div class="toggle-row">
+            <div class="toggle-info">
+                <div class="ti-title">Notifications</div>
+                <div class="ti-sub">Game result alerts</div>
+            </div>
+            <div class="toggle" id="toggleNotif" onclick="toggle('notif')"><div class="toggle-knob"></div></div>
+        </div>
+        <div class="toggle-row">
+            <div class="toggle-info">
+                <div class="ti-title">Auto-confirm Bets</div>
+                <div class="ti-sub">Skip confirmation dialog</div>
+            </div>
+            <div class="toggle" id="toggleAuto" onclick="toggle('auto')"><div class="toggle-knob"></div></div>
+        </div>
+    </div>
+
+    <!-- Support -->
+    <div class="section-title">Support</div>
+    <div class="card" style="margin-bottom:16px">
+        <div class="list-item" onclick="toast('Live chat coming soon')">
+            <div class="li-icon" style="background:#eef0ff">💬</div>
+            <div><div class="li-title">Live Support</div><div class="li-sub">Chat with us 24/7</div></div>
+            <div class="li-right">›</div>
+        </div>
+        <div class="list-item" onclick="toast('FAQ coming soon')">
+            <div class="li-icon" style="background:#f0faf5">❓</div>
+            <div><div class="li-title">FAQ</div><div class="li-sub">Common questions answered</div></div>
+            <div class="li-right">›</div>
+        </div>
+        <div class="list-item" onclick="toast('Terms opening...')">
+            <div class="li-icon" style="background:#f8f0ff">📄</div>
+            <div><div class="li-title">Terms & Privacy</div><div class="li-sub">Our policies</div></div>
+            <div class="li-right">›</div>
+        </div>
+    </div>
+
+    <!-- Logout -->
+    <button class="btn btn-danger" onclick="doLogout()" style="margin-bottom:8px">🚪 Logout</button>
+    <p style="text-align:center;font-size:11px;color:var(--text-secondary)">51Game WinGo v1.0.0</p>
+
+</div>
+
+<!-- Bottom Tabs -->
+<nav class="tab-bar">
+    <a class="tab-item" href="home.html"><span class="tab-icon">🏠</span><span>Home</span></a>
+    <a class="tab-item" href="index.html"><span class="tab-icon">🎮</span><span>Game</span></a>
+    <a class="tab-item" href="wallet.html"><span class="tab-icon">💳</span><span>Wallet</span></a>
+    <a class="tab-item active" href="profile.html"><span class="tab-icon">👤</span><span>Profile</span></a>
+</nav>
+
+<!-- Edit Sheet -->
+<div class="edit-overlay" id="editOverlay">
+    <div class="edit-sheet">
+        <div class="modal-handle" style="width:40px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 20px"></div>
+        <div class="modal-title" id="editTitle" style="font-size:18px;font-weight:700;text-align:center;margin-bottom:20px">Edit</div>
+        <div id="editBody"></div>
+    </div>
+</div>
+
+<div class="app-toast" id="toast"></div>
+
+<script type="module">
+import { requireAuth, getUser, getBalance, getTransactions, logout, login, formatCurrency } from './js/user.js';
+if (!requireAuth('home.html')) throw new Error('Not logged in');
+
+let user = getUser();
+
+function render() {
+    const initials = user.username ? user.username.slice(0,2).toUpperCase() : '?';
+    document.getElementById('avatarDisp').textContent = initials;
+    document.getElementById('usernameDisp').textContent = user.username || '—';
+    document.getElementById('phoneDisp').textContent = user.phone || 'No phone set';
+    document.getElementById('uidDisp').textContent = user.uid || '';
+    document.getElementById('subUsername').textContent = user.username || '—';
+    document.getElementById('subPhone').textContent = user.phone || 'Not set';
+    document.getElementById('balDisp').textContent = formatCurrency(getBalance());
+    document.getElementById('txCount').textContent = getTransactions().length;
+    const days = user.createdAt ? Math.floor((Date.now() - new Date(user.createdAt)) / 86400000) + 1 : 1;
+    document.getElementById('memberDays').textContent = days;
+
+    // Load preferences
+    const prefs = JSON.parse(localStorage.getItem('wingo_prefs') || '{}');
+    setToggleState('sound', prefs.sound !== false);
+    setToggleState('notif', prefs.notif === true);
+    setToggleState('auto', prefs.auto === true);
+}
+
+function setToggleState(key, val) {
+    const el = document.getElementById('toggle' + key.charAt(0).toUpperCase() + key.slice(1));
+    if (val) el.classList.add('on'); else el.classList.remove('on');
+}
+
+render();
+
+window.toggle = function(key) {
+    const prefs = JSON.parse(localStorage.getItem('wingo_prefs') || '{}');
+    prefs[key] = !prefs[key];
+    if (key === 'sound' && prefs[key] === undefined) prefs[key] = false;
+    localStorage.setItem('wingo_prefs', JSON.stringify(prefs));
+    setToggleState(key, prefs[key]);
+};
+
+window.toast = function(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+};
+
+window.doLogout = function() {
+    if (!confirm('Are you sure you want to logout?')) return;
+    logout();
+    window.location.href = 'home.html';
+};
+
+let currentEdit = '';
+window.openEdit = function(type) {
+    currentEdit = type;
+    const overlay = document.getElementById('editOverlay');
+    const body = document.getElementById('editBody');
+    const title = document.getElementById('editTitle');
+
+    if (type === 'username') {
+        title.textContent = 'Edit Username';
+        body.innerHTML = `
+            <div class="field-group"><div class="field-label">New Username</div>
+            <input class="field-input" type="text" id="newVal" value="${user.username || ''}" placeholder="Enter new username"></div>
+            <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+            <button class="btn btn-outline" style="margin-top:10px" onclick="closeEdit()">Cancel</button>`;
+    } else if (type === 'phone') {
+        title.textContent = 'Update Phone';
+        body.innerHTML = `
+            <div class="field-group"><div class="field-label">Phone Number</div>
+            <input class="field-input" type="tel" id="newVal" value="${user.phone || ''}" placeholder="Enter phone number"></div>
+            <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+            <button class="btn btn-outline" style="margin-top:10px" onclick="closeEdit()">Cancel</button>`;
+    } else if (type === 'password') {
+        title.textContent = 'Change Password';
+        body.innerHTML = `
+            <div class="field-group"><div class="field-label">Current Password</div>
+            <input class="field-input" type="password" id="curPass" placeholder="Current password"></div>
+            <div class="field-group"><div class="field-label">New Password</div>
+            <input class="field-input" type="password" id="newPass" placeholder="New password (min 6 chars)"></div>
+            <div class="field-group"><div class="field-label">Confirm New Password</div>
+            <input class="field-input" type="password" id="confPass" placeholder="Repeat new password"></div>
+            <button class="btn btn-primary" onclick="savePass()">Change Password</button>
+            <button class="btn btn-outline" style="margin-top:10px" onclick="closeEdit()">Cancel</button>`;
+    }
+    overlay.classList.add('open');
+};
+
+window.closeEdit = function() {
+    document.getElementById('editOverlay').classList.remove('open');
+};
+
+document.getElementById('editOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeEdit();
+});
+
+window.saveEdit = function() {
+    const val = document.getElementById('newVal').value.trim();
+    if (!val) { toast('Field cannot be empty'); return; }
+    user[currentEdit] = val;
+    login(user);
+    // Update stored user list too
+    const users = JSON.parse(localStorage.getItem('wingo_users') || '[]');
+    const idx = users.findIndex(u => u.uid === user.uid);
+    if (idx > -1) {
+        if (currentEdit === 'username') users[idx].username = val;
+        if (currentEdit === 'phone') users[idx].phone = val;
+        localStorage.setItem('wingo_users', JSON.stringify(users));
+    }
+    closeEdit(); render(); toast('✅ Updated successfully!');
+};
+
+window.savePass = function() {
+    const cur = document.getElementById('curPass').value;
+    const newP = document.getElementById('newPass').value;
+    const conf = document.getElementById('confPass').value;
+    const users = JSON.parse(localStorage.getItem('wingo_users') || '[]');
+    const idx = users.findIndex(u => u.uid === user.uid);
+    if (idx === -1 || users[idx].password !== cur) { toast('Current password incorrect'); return; }
+    if (newP.length < 6) { toast('New password must be at least 6 characters'); return; }
+    if (newP !== conf) { toast('Passwords do not match'); return; }
+    users[idx].password = newP;
+    localStorage.setItem('wingo_users', JSON.stringify(users));
+    closeEdit(); toast('✅ Password changed!');
+};
+</script>
+</body>
+</html>

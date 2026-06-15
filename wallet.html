@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wallet – 51Game</title>
+    <link rel="icon" href="https://ossimg.51game-game.com/51game/other/h5setting_20240530145344k6oc.ico">
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<!-- Page Header -->
+<div class="page-header">
+    <a href="index.html" class="back-btn">‹</a>
+    <h1>My Wallet</h1>
+</div>
+
+<div class="page-content">
+
+    <!-- Balance Card -->
+    <div class="balance-card" style="margin-bottom:16px">
+        <div class="balance-label">💼 Total Balance</div>
+        <div class="balance-amount" id="balanceDisplay">₹0.00</div>
+        <div class="balance-uid" id="uidDisplay"></div>
+        <div class="balance-actions">
+            <button class="btn btn-green" onclick="openSheet('deposit')">⬇ Deposit</button>
+            <button class="btn btn-red" onclick="openSheet('withdraw')">⬆ Withdraw</button>
+        </div>
+    </div>
+
+    <!-- Quick Deposit Chips -->
+    <div class="card" style="margin-bottom:16px">
+        <div class="card-header">Quick Deposit</div>
+        <div class="card-body">
+            <div class="chip-row" id="quickChips">
+                <button class="chip" onclick="quickDeposit(100)">₹100</button>
+                <button class="chip" onclick="quickDeposit(500)">₹500</button>
+                <button class="chip" onclick="quickDeposit(1000)">₹1K</button>
+                <button class="chip" onclick="quickDeposit(5000)">₹5K</button>
+                <button class="chip" onclick="quickDeposit(10000)">₹10K</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="section-title">Transaction History</div>
+    <div class="card">
+        <div id="txList" style="padding:0 20px">
+            <div style="text-align:center;padding:30px;color:#aaa;font-size:14px">No transactions yet</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Bottom Tabs -->
+<nav class="tab-bar">
+    <a class="tab-item" href="home.html">
+        <span class="tab-icon">🏠</span><span>Home</span>
+    </a>
+    <a class="tab-item" href="index.html">
+        <span class="tab-icon">🎮</span><span>Game</span>
+    </a>
+    <a class="tab-item active" href="wallet.html">
+        <span class="tab-icon">💳</span><span>Wallet</span>
+    </a>
+    <a class="tab-item" href="profile.html">
+        <span class="tab-icon">👤</span><span>Profile</span>
+    </a>
+</nav>
+
+<!-- Deposit Sheet -->
+<div class="modal-overlay" id="depositSheet">
+    <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-title">💰 Deposit Funds</div>
+        <div class="field-group">
+            <div class="field-label">Amount (₹)</div>
+            <input class="field-input" type="number" id="depositAmount" placeholder="Enter amount" min="10" max="100000">
+        </div>
+        <div class="chip-row" style="margin-bottom:16px">
+            <button class="chip" onclick="setDepAmt(100)">₹100</button>
+            <button class="chip" onclick="setDepAmt(500)">₹500</button>
+            <button class="chip" onclick="setDepAmt(1000)">₹1K</button>
+            <button class="chip" onclick="setDepAmt(5000)">₹5K</button>
+        </div>
+        <div class="field-group">
+            <div class="field-label">Payment Method</div>
+            <select class="field-input" id="depositMethod">
+                <option value="upi">UPI</option>
+                <option value="bank">Bank Transfer</option>
+                <option value="card">Debit/Credit Card</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" onclick="doDeposit()">Confirm Deposit</button>
+        <button class="btn btn-outline" style="margin-top:10px" onclick="closeSheet('deposit')">Cancel</button>
+    </div>
+</div>
+
+<!-- Withdraw Sheet -->
+<div class="modal-overlay" id="withdrawSheet">
+    <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-title">⬆ Withdraw Funds</div>
+        <div class="field-group">
+            <div class="field-label">Amount (₹)</div>
+            <input class="field-input" type="number" id="withdrawAmount" placeholder="Enter amount" min="100">
+        </div>
+        <div class="chip-row" style="margin-bottom:16px">
+            <button class="chip" onclick="setWdAmt(500)">₹500</button>
+            <button class="chip" onclick="setWdAmt(1000)">₹1K</button>
+            <button class="chip" onclick="setWdAmt(5000)">₹5K</button>
+        </div>
+        <div class="field-group">
+            <div class="field-label">Bank / UPI ID</div>
+            <input class="field-input" type="text" id="withdrawDest" placeholder="Enter UPI ID or account number">
+        </div>
+        <button class="btn btn-danger" onclick="doWithdraw()">Request Withdrawal</button>
+        <button class="btn btn-outline" style="margin-top:10px" onclick="closeSheet('withdraw')">Cancel</button>
+    </div>
+</div>
+
+<div class="app-toast" id="toast"></div>
+
+<script type="module">
+import { requireAuth, getUser, getBalance, setBalance, getTransactions, addTransaction, formatCurrency } from './js/user.js';
+if (!requireAuth('home.html')) throw new Error('Not logged in');
+
+const user = getUser();
+
+function render() {
+    document.getElementById('balanceDisplay').textContent = formatCurrency(getBalance());
+    document.getElementById('uidDisplay').textContent = user.uid || '';
+
+    const txs = getTransactions();
+    const list = document.getElementById('txList');
+    if (!txs.length) {
+        list.innerHTML = '<div style="text-align:center;padding:30px;color:#aaa;font-size:14px">No transactions yet</div>';
+        return;
+    }
+    list.innerHTML = txs.map(tx => {
+        const isCredit = ['deposit','bonus','win'].includes(tx.type);
+        const icons = { deposit: '💳', withdraw: '⬆', bet: '🎮', win: '🏆', bonus: '🎁' };
+        const colors = { deposit: '#e8faf0', withdraw: '#ffeef0', bet: '#f0f0f0', win: '#e8faf0', bonus: '#fff8ec' };
+        const date = new Date(tx.date).toLocaleDateString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+        return `<div class="tx-row">
+            <div class="tx-icon" style="background:${colors[tx.type]||'#f0f0f0'}">${icons[tx.type]||'💰'}</div>
+            <div class="tx-info">
+                <div class="tx-title">${tx.note || tx.type}</div>
+                <div class="tx-date">${date} · Bal: ${formatCurrency(tx.balance)}</div>
+            </div>
+            <div class="tx-amount ${isCredit?'credit':'debit'}">${isCredit?'+':'-'}${formatCurrency(Math.abs(tx.amount))}</div>
+        </div>`;
+    }).join('');
+}
+
+render();
+
+function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+window.openSheet = function(type) {
+    document.getElementById(type === 'deposit' ? 'depositSheet' : 'withdrawSheet').classList.add('open');
+};
+window.closeSheet = function(type) {
+    document.getElementById(type === 'deposit' ? 'depositSheet' : 'withdrawSheet').classList.remove('open');
+};
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+}));
+
+window.setDepAmt = (v) => document.getElementById('depositAmount').value = v;
+window.setWdAmt = (v) => document.getElementById('withdrawAmount').value = v;
+window.quickDeposit = function(amount) {
+    const bal = getBalance();
+    setBalance(bal + amount);
+    addTransaction('deposit', amount, `Quick deposit ₹${amount}`);
+    render(); toast(`✅ ₹${amount} deposited!`);
+};
+
+window.doDeposit = function() {
+    const amount = parseFloat(document.getElementById('depositAmount').value);
+    if (!amount || amount < 10) { toast('Minimum deposit is ₹10'); return; }
+    if (amount > 100000) { toast('Maximum deposit is ₹1,00,000'); return; }
+    const bal = getBalance();
+    setBalance(bal + amount);
+    addTransaction('deposit', amount, 'Deposit via ' + document.getElementById('depositMethod').value.toUpperCase());
+    closeSheet('deposit');
+    render(); toast('✅ ₹' + amount + ' deposited successfully!');
+};
+
+window.doWithdraw = function() {
+    const amount = parseFloat(document.getElementById('withdrawAmount').value);
+    const dest = document.getElementById('withdrawDest').value.trim();
+    if (!amount || amount < 100) { toast('Minimum withdrawal is ₹100'); return; }
+    if (!dest) { toast('Please enter UPI ID or account number'); return; }
+    const bal = getBalance();
+    if (amount > bal) { toast('Insufficient balance'); return; }
+    setBalance(bal - amount);
+    addTransaction('withdraw', amount, 'Withdraw to ' + dest);
+    closeSheet('withdraw');
+    render(); toast('✅ Withdrawal request submitted!');
+};
+</script>
+</body>
+</html>

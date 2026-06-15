@@ -2,833 +2,510 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>51Game WinGo - Real-time Lottery Betting</title>
-    <link rel="icon" type="image/svg+xml" href="https://ossimg.51game-game.com/51game/other/h5setting_20240530145344k6oc.ico">
-    <meta name="description" content="Experience the thrill of WinGo - Real-time lottery betting with multiple game modes. Bet on numbers, colors, and win big prizes!">
-    <meta name="keywords" content="WinGo, lottery, betting, real-time, numbers, colors, prizes">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>51Game WinGo</title>
+    <link rel="icon" href="https://ossimg.51game-game.com/51game/other/h5setting_20240530145344k6oc.ico">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f0f1a;
+            color: #fff;
             min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
+            max-width: 480px;
             margin: 0 auto;
-            padding: 0 20px;
+            overflow-x: hidden;
         }
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; border: none; outline: none; font-family: inherit; }
 
-        /* Header */
-        header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #4f46e5;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #666;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: #4f46e5;
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .auth-buttons button {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .auth-buttons .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid white;
-        }
-
-        .auth-buttons .btn-secondary:hover {
-            background: white;
-            color: #4f46e5;
-        }
-
-        .auth-buttons .btn-primary {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-        }
-
-        .auth-buttons .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
-        }
-
-        .cta-button {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.3s;
-        }
-
-        .cta-button:hover {
-            transform: translateY(-2px);
-        }
-
-        /* Hero Section */
+        /* Hero */
         .hero {
-            padding: 120px 0 80px;
+            min-height: 100vh;
+            background: linear-gradient(160deg, #1a0a2e 0%, #0f0f1a 40%, #0a1628 100%);
+            display: flex; flex-direction: column;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 20% 20%, rgba(245,166,35,0.15) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 80%, rgba(124,58,237,0.15) 0%, transparent 60%);
+        }
+
+        /* Nav */
+        .nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 24px;
+            position: relative; z-index: 10;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; }
+        .nav-logo-icon {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, #f5a623, #e08800);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+        }
+        .nav-logo span { font-size: 20px; font-weight: 800; color: #fff; }
+        .nav-logo span em { color: #f5a623; font-style: normal; }
+        .nav-btns { display: flex; gap: 10px; }
+        .nav-btn {
+            padding: 9px 18px; border-radius: 20px;
+            font-size: 14px; font-weight: 600;
+        }
+        .nav-btn-login {
+            background: transparent;
+            border: 1.5px solid rgba(255,255,255,0.3);
+            color: #fff;
+        }
+        .nav-btn-register {
+            background: linear-gradient(135deg, #f5a623, #e08800);
+            color: #fff;
+        }
+
+        /* Hero content */
+        .hero-content {
+            flex: 1;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 40px 24px;
             text-align: center;
-            color: white;
+            position: relative; z-index: 5;
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(245,166,35,0.15);
+            border: 1px solid rgba(245,166,35,0.3);
+            color: #f5a623;
+            padding: 6px 14px; border-radius: 20px;
+            font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+            margin-bottom: 24px;
+        }
+        .hero-title {
+            font-size: 42px; font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff 0%, #f5a623 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-subtitle {
+            font-size: 16px; color: rgba(255,255,255,0.65);
+            line-height: 1.6; max-width: 340px;
+            margin-bottom: 36px;
+        }
+        .hero-cta { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px; }
+        .cta-primary {
+            padding: 16px;
+            background: linear-gradient(135deg, #f5a623, #e08800);
+            color: #fff; border-radius: 16px;
+            font-size: 16px; font-weight: 700;
+            box-shadow: 0 8px 30px rgba(245,166,35,0.4);
+            display: block; text-align: center;
+        }
+        .cta-secondary {
+            padding: 15px;
+            background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.15);
+            color: #fff; border-radius: 16px;
+            font-size: 16px; font-weight: 600;
+            display: block; text-align: center;
         }
 
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        /* Floating game modes preview */
+        .modes-preview {
+            display: flex; gap: 10px;
+            justify-content: center; flex-wrap: wrap;
+            margin-top: 40px; position: relative; z-index: 5;
         }
-
-        .hero p {
-            font-size: 1.25rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1rem;
-            border: 2px solid white;
-            transition: all 0.3s;
-        }
-
-        .btn-secondary:hover {
-            background: white;
-            color: #4f46e5;
-        }
-
-        /* Period Interface */
-        .period-interface {
-            padding: 80px 0;
-            background: #f8fafc;
-        }
-
-        .period-interface h2 {
+        .mode-chip {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            padding: 12px 16px;
             text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: #1f2937;
         }
+        .mode-chip .time { font-size: 16px; font-weight: 800; color: #f5a623; }
+        .mode-chip .label { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 2px; }
 
-        .period-display {
-            text-align: center;
-            margin-bottom: 2rem;
+        /* Stats strip */
+        .stats-strip {
+            background: rgba(255,255,255,0.04);
+            border-top: 1px solid rgba(255,255,255,0.07);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            padding: 20px 24px;
+            display: flex; justify-content: space-around;
         }
-
-        .period-number, .period-time {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #4f46e5;
-        }
-
-        .period-interface .btn-primary {
-            display: inline-block;
-        }
+        .stat { text-align: center; }
+        .stat-val { font-size: 20px; font-weight: 800; color: #f5a623; }
+        .stat-lbl { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 3px; }
 
         /* Features */
-        .features {
-            padding: 80px 0;
-            background: white;
-        }
-
-        .features h2 {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: #1f2937;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
+        .section { padding: 40px 24px; }
+        .section-title { font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 24px; }
+        .section-title span { color: #f5a623; }
+        .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .feature-card {
-            background: #f8fafc;
-            padding: 2rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s;
+            padding: 18px 14px;
+        }
+        .feature-icon { font-size: 28px; margin-bottom: 10px; }
+        .feature-title { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+        .feature-desc { font-size: 11px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+        /* Payout table */
+        .payout-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .payout-table th {
+            background: rgba(245,166,35,0.15);
+            color: #f5a623; padding: 10px 12px;
+            text-align: left; font-weight: 600;
+        }
+        .payout-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .payout-table tr:last-child td { border-bottom: none; }
+        .color-dot {
+            width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle;
         }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .feature-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            color: white;
-            font-size: 1.5rem;
-        }
-
-        .feature-card h3 {
-            font-size: 1.25rem;
-            margin-bottom: 1rem;
-            color: #1f2937;
-        }
-
-        /* Game Modes */
-        .game-modes {
-            padding: 80px 0;
-            background: #f8fafc;
-        }
-
-        .game-modes h2 {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: #1f2937;
-        }
-
-        .modes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-
-        .mode-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s;
-        }
-
-        .mode-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .mode-card.active {
-            border: 3px solid #10b981;
-        }
-
-        .mode-time {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #4f46e5;
-            margin-bottom: 0.5rem;
-        }
-
-        .mode-desc {
-            color: #666;
-        }
-
-        /* How to Play */
-        .how-to-play {
-            padding: 80px 0;
-            background: white;
-        }
-
-        .how-to-play h2 {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: #1f2937;
-        }
-
-        .rules-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .rule-item {
-            background: #f8fafc;
-            padding: 2rem;
-            border-radius: 16px;
-            border-left: 4px solid #4f46e5;
-        }
-
-        .rule-number {
-            background: #4f46e5;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        /* Stats */
-        .stats {
-            padding: 80px 0;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
+        /* Bottom CTA */
+        .bottom-cta {
+            background: linear-gradient(135deg, #f5a623 0%, #e08800 100%);
+            padding: 40px 24px;
             text-align: center;
         }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            opacity: 0.9;
-            font-size: 1.1rem;
+        .bottom-cta h2 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+        .bottom-cta p { font-size: 14px; opacity: 0.85; margin-bottom: 24px; }
+        .bottom-cta .btn {
+            display: inline-block;
+            background: #0f0f1a;
+            color: #f5a623;
+            padding: 14px 36px; border-radius: 14px;
+            font-size: 16px; font-weight: 700;
         }
 
         /* Footer */
-        footer {
-            padding: 40px 0;
-            background: #1f2937;
-            color: white;
+        .footer {
+            background: #080810;
+            padding: 24px;
             text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
         }
+        .footer a { color: rgba(255,255,255,0.4); margin: 0 8px; }
 
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 500;
+            display: flex; align-items: flex-end;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s;
         }
-
-        .footer-section h3 {
-            margin-bottom: 1rem;
-            color: #10b981;
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal-sheet {
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px 24px 0 0;
+            width: 100%; max-width: 480px; margin: 0 auto;
+            padding: 28px 24px 48px;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
         }
-
-        .footer-section ul {
-            list-style: none;
+        .modal-overlay.open .modal-sheet { transform: translateY(0); }
+        .modal-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 24px; }
+        .modal-tabs { display: flex; border-radius: 12px; background: rgba(255,255,255,0.06); padding: 4px; margin-bottom: 24px; }
+        .modal-tab {
+            flex: 1; padding: 10px; border-radius: 10px;
+            text-align: center; font-size: 14px; font-weight: 600;
+            color: rgba(255,255,255,0.4); transition: all 0.2s;
         }
-
-        .footer-section ul li {
-            margin-bottom: 0.5rem;
+        .modal-tab.active { background: rgba(245,166,35,0.9); color: #fff; }
+        .field-group { margin-bottom: 14px; }
+        .field-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+        .field-input {
+            width: 100%; padding: 13px 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #fff; font-size: 15px; font-family: inherit;
         }
-
-        .footer-section a {
-            color: #ccc;
-            text-decoration: none;
-            transition: color 0.3s;
+        .field-input:focus { border-color: #f5a623; outline: none; }
+        .field-input::placeholder { color: rgba(255,255,255,0.3); }
+        .submit-btn {
+            width: 100%; padding: 15px;
+            background: linear-gradient(135deg, #f5a623, #e08800);
+            color: #fff; border-radius: 14px;
+            font-size: 16px; font-weight: 700;
+            margin-top: 6px;
         }
+        .modal-footer { text-align: center; margin-top: 14px; font-size: 13px; color: rgba(255,255,255,0.4); }
+        .modal-footer a { color: #f5a623; }
+        .modal-error { background: rgba(255,71,87,0.15); border: 1px solid rgba(255,71,87,0.3); color: #ff4757; padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 14px; display: none; }
 
-        .footer-section a:hover {
-            color: #10b981;
+        /* Toast */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.85); color: #fff;
+            padding: 10px 24px; border-radius: 30px;
+            font-size: 14px; z-index: 9999;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s; white-space: nowrap;
         }
-
-        .copyright {
-            border-top: 1px solid #374151;
-            padding-top: 2rem;
-            opacity: 0.8;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero p {
-                font-size: 1.1rem;
-            }
-
-            .hero-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            nav {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .nav-links {
-                gap: 1rem;
-            }
-
-            .auth-buttons {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .auth-buttons button {
-                width: 100%;
-            }
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 400px;
-            border-radius: 10px;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-        }
-
-        .modal h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .modal form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal input {
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .modal button {
-            margin-top: 10px;
-        }
+        .toast.show { opacity: 1; }
     </style>
 </head>
 <body>
-    <header>
-        <nav class="container">
-            <div class="logo">51Game WinGo</div>
-            <ul class="nav-links">
-                <li><a href="#features">Features</a></li>
-                <li><a href="#games">Games</a></li>
-                <li><a href="#rules">How to Play</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-            <div class="auth-buttons">
-                <button class="btn-secondary" id="login-btn">Login</button>
-                <button class="btn-primary" id="register-btn">Register</button>
-            </div>
-        </nav>
-    </header>
 
-    <section class="hero">
-        <div class="container">
-            <h1>Welcome to WinGo</h1>
-            <p>Experience the ultimate lottery betting experience with real-time games, multiple betting options, and exciting prizes!</p>
-            <div class="hero-buttons">
-                <a href="./index.html" class="btn-primary">Start Playing</a>
-                <a href="#rules" class="btn-secondary">Learn More</a>
-            </div>
+<!-- Hero -->
+<div class="hero">
+    <nav class="nav">
+        <div class="nav-logo">
+            <div class="nav-logo-icon">🎮</div>
+            <span>51<em>Game</em></span>
         </div>
-    </section>
-
-    <section class="period-interface">
-        <div class="container">
-            <h2>Current Period Interface</h2>
-            <div class="period-display">
-                <div class="period-number">Period: <span id="period-number">20250109100051307</span></div>
-                <div class="period-time">Time Left: <span id="period-time">00:00</span></div>
-            </div>
-            <a href="./index.html" class="btn-primary">Game Enter</a>
+        <div class="nav-btns">
+            <button class="nav-btn nav-btn-login" id="openLogin">Login</button>
+            <button class="nav-btn nav-btn-register" id="openRegister">Register</button>
         </div>
-    </section>
+    </nav>
 
-    <section id="features" class="features">
-        <div class="container">
-            <h2>Why Choose WinGo?</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Real-time Betting</h3>
-                    <p>Place bets instantly with live countdown timers and immediate results.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Multiple Options</h3>
-                    <p>Bet on numbers (0-9), colors (Red/Green/Violet), or go Big/Small.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💰</div>
-                    <h3>High Payouts</h3>
-                    <p>Win up to 9x your bet on number matches and enjoy various multipliers.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📱</div>
-                    <h3>Mobile Friendly</h3>
-                    <p>Optimized for mobile devices with smooth, responsive gameplay.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Secure & Fair</h3>
-                    <p>Provably fair system with transparent random number generation.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎮</div>
-                    <h3>Multiple Game Modes</h3>
-                    <p>Choose from 30s, 1min, 3min, or 5min intervals to suit your style.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="games" class="game-modes">
-        <div class="container">
-            <h2>Game Modes</h2>
-            <div class="modes-grid">
-                <div class="mode-card active">
-                    <div class="mode-time">30 Seconds</div>
-                    <div class="mode-desc">Fast-paced action with quick results</div>
-                </div>
-                <div class="mode-card">
-                    <div class="mode-time">1 Minute</div>
-                    <div class="mode-desc">Balanced gameplay for most players</div>
-                </div>
-                <div class="mode-card">
-                    <div class="mode-time">3 Minutes</div>
-                    <div class="mode-desc">Relaxed pace with bigger pots</div>
-                </div>
-                <div class="mode-card">
-                    <div class="mode-time">5 Minutes</div>
-                    <div class="mode-desc">Strategic play with maximum excitement</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="rules" class="how-to-play">
-        <div class="container">
-            <h2>How to Play</h2>
-            <div class="rules-grid">
-                <div class="rule-item">
-                    <div class="rule-number">1</div>
-                    <h3>Choose Your Game</h3>
-                    <p>Select from 30s, 1min, 3min, or 5min game modes based on your preferred pace.</p>
-                </div>
-                <div class="rule-item">
-                    <div class="rule-number">2</div>
-                    <h3>Place Your Bet</h3>
-                    <p>Bet on numbers (0-9), colors (Green/Red/Violet), or Big/Small with various stake amounts.</p>
-                </div>
-                <div class="rule-item">
-                    <div class="rule-number">3</div>
-                    <h3>Wait for Draw</h3>
-                    <p>Watch the live countdown and wait for the random number to be drawn.</p>
-                </div>
-                <div class="rule-item">
-                    <div class="rule-number">4</div>
-                    <h3>Collect Winnings</h3>
-                    <p>If your prediction matches, you'll receive payouts based on the odds (up to 9x for exact numbers).</p>
-                </div>
-                <div class="rule-item">
-                    <div class="rule-number">5</div>
-                    <h3>Payout Rules</h3>
-                    <ul style="margin-top: 1rem; text-align: left;">
-                        <li>Exact number: 9x payout</li>
-                        <li>Green/Red: 2x payout</li>
-                        <li>Violet: 4.5x payout</li>
-                        <li>Big/Small: 2x payout</li>
-                    </ul>
-                </div>
-                <div class="rule-item">
-                    <div class="rule-number">6</div>
-                    <h3>Service Fee</h3>
-                    <p>A 2% service fee is deducted from each bet, and payouts are calculated on the remaining amount.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="stats">
-        <div class="container">
-            <div class="stats-grid">
-                <div>
-                    <div class="stat-number">10K+</div>
-                    <div class="stat-label">Active Players</div>
-                </div>
-                <div>
-                    <div class="stat-number">₹50M+</div>
-                    <div class="stat-label">Prizes Paid Out</div>
-                </div>
-                <div>
-                    <div class="stat-number">99.9%</div>
-                    <div class="stat-label">Uptime</div>
-                </div>
-                <div>
-                    <div class="stat-number">24/7</div>
-                    <div class="stat-label">Support Available</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>51Game WinGo</h3>
-                    <p>The ultimate real-time lottery betting experience with multiple game modes and exciting prizes.</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="./index.html">Play Now</a></li>
-                        <li><a href="#rules">How to Play</a></li>
-                        <li><a href="#games">Game Modes</a></li>
-                        <li><a href="#contact">Contact Us</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Support</h3>
-                    <ul>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Responsible Gaming</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Follow Us</h3>
-                    <ul>
-                        <li><a href="#">Facebook</a></li>
-                        <li><a href="#">Twitter</a></li>
-                        <li><a href="#">Instagram</a></li>
-                        <li><a href="#">Telegram</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="copyright">
-                <p>&copy; 2024 51Game WinGo. All rights reserved. Play responsibly.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Login Modal -->
-    <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="login-close">&times;</span>
-            <h2>Login</h2>
-            <form id="login-form">
-                <input type="email" placeholder="Email" required>
-                <input type="password" placeholder="Password" required>
-                <button type="submit" class="btn-primary">Login</button>
-            </form>
+    <div class="hero-content">
+        <div class="hero-badge">🔴 Live Games Running Now</div>
+        <h1 class="hero-title">Win Big<br>Every Round</h1>
+        <p class="hero-subtitle">Bet on colors, numbers & sizes. Real-time draws every 30 seconds. Up to 9× payout.</p>
+        <div class="hero-cta">
+            <button class="cta-primary" id="openRegisterMain">🚀 Start Playing Free</button>
+            <button class="cta-secondary" id="openLoginMain">Already have an account?</button>
         </div>
     </div>
 
-    <!-- Register Modal -->
-    <div id="register-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="register-close">&times;</span>
-            <h2>Register</h2>
-            <form id="register-form">
-                <input type="text" placeholder="Username" required>
-                <input type="email" placeholder="Email" required>
-                <input type="password" placeholder="Password" required>
-                <input type="password" placeholder="Confirm Password" required>
-                <button type="submit" class="btn-primary">Register</button>
-            </form>
+    <div class="modes-preview">
+        <div class="mode-chip"><div class="time">30s</div><div class="label">Win Go</div></div>
+        <div class="mode-chip"><div class="time">1Min</div><div class="label">Win Go</div></div>
+        <div class="mode-chip"><div class="time">3Min</div><div class="label">Win Go</div></div>
+        <div class="mode-chip"><div class="time">5Min</div><div class="label">Win Go</div></div>
+    </div>
+    <div style="height:40px"></div>
+</div>
+
+<!-- Stats -->
+<div class="stats-strip">
+    <div class="stat"><div class="stat-val">50K+</div><div class="stat-lbl">Active Players</div></div>
+    <div class="stat"><div class="stat-val">₹2Cr+</div><div class="stat-lbl">Paid Out</div></div>
+    <div class="stat"><div class="stat-val">9×</div><div class="stat-lbl">Max Payout</div></div>
+    <div class="stat"><div class="stat-val">24/7</div><div class="stat-lbl">Live Games</div></div>
+</div>
+
+<!-- Features -->
+<div class="section">
+    <h2 class="section-title">Why <span>WinGo?</span></h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Instant Results</div>
+            <div class="feature-desc">Draws every 30 seconds. No waiting around.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">💰</div>
+            <div class="feature-title">Up to 9× Win</div>
+            <div class="feature-desc">Exact number match pays out 9× your bet.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🎨</div>
+            <div class="feature-title">Color Bets</div>
+            <div class="feature-desc">Red, Green, Violet — 3 ways to win every round.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <div class="feature-title">Mobile First</div>
+            <div class="feature-desc">Designed for smooth play on any device.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <div class="feature-title">Secure</div>
+            <div class="feature-desc">Fair, transparent random number generation.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🎮</div>
+            <div class="feature-title">4 Game Modes</div>
+            <div class="feature-desc">30s, 1min, 3min, 5min to fit your style.</div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
+<!-- Payouts -->
+<div class="section" style="padding-top:0">
+    <h2 class="section-title">Payout <span>Rules</span></h2>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden">
+        <table class="payout-table">
+            <thead><tr><th>Bet</th><th>Condition</th><th>Payout</th></tr></thead>
+            <tbody>
+                <tr><td>Number 0–9</td><td>Exact match</td><td><strong style="color:#f5a623">9×</strong></td></tr>
+                <tr><td><span class="color-dot" style="background:#2ed573"></span>Green</td><td>1, 3, 7, 9</td><td><strong style="color:#f5a623">2×</strong></td></tr>
+                <tr><td><span class="color-dot" style="background:#ff4757"></span>Red</td><td>2, 4, 6, 8</td><td><strong style="color:#f5a623">2×</strong></td></tr>
+                <tr><td><span class="color-dot" style="background:#a55eea"></span>Violet</td><td>0 or 5</td><td><strong style="color:#f5a623">4.5×</strong></td></tr>
+                <tr><td>Big / Small</td><td>5–9 / 0–4</td><td><strong style="color:#f5a623">2×</strong></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:10px;text-align:center">2% service fee deducted from each bet. Play responsibly.</p>
+</div>
 
-        // Add scroll effect to header
-        window.addEventListener('scroll', function() {
-            const header = document.querySelector('header');
-            if (window.scrollY > 100) {
-                header.style.background = 'rgba(255, 255, 255, 0.98)';
-            } else {
-                header.style.background = 'rgba(255, 255, 255, 0.95)';
-            }
-        });
+<!-- Bottom CTA -->
+<div class="bottom-cta">
+    <h2>Ready to Win?</h2>
+    <p>Join thousands of players winning daily. Get ₹1,000 welcome bonus on signup.</p>
+    <button class="btn" id="openRegisterBottom">Create Free Account</button>
+</div>
 
-        // Simple countdown for period time
-        let timeLeft = 30; // 30 seconds for demo
-        const periodTimeElement = document.getElementById('period-time');
-        const interval = setInterval(() => {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            periodTimeElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            timeLeft--;
-            if (timeLeft < 0) {
-                timeLeft = 30;
-            }
-        }, 1000);
+<!-- Footer -->
+<div class="footer">
+    <p style="margin-bottom:10px">
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">FAQ</a>
+        <a href="#">Support</a>
+    </p>
+    <p>© 2024 51Game WinGo. Play responsibly. 18+</p>
+</div>
 
-        // Modal functionality
-        const loginBtn = document.getElementById('login-btn');
-        const registerBtn = document.getElementById('register-btn');
-        const loginModal = document.getElementById('login-modal');
-        const registerModal = document.getElementById('register-modal');
-        const loginClose = document.getElementById('login-close');
-        const registerClose = document.getElementById('register-close');
+<!-- Auth Modal -->
+<div class="modal-overlay" id="authModal">
+    <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-tabs">
+            <div class="modal-tab active" id="tabLogin" onclick="switchTab('login')">Login</div>
+            <div class="modal-tab" id="tabRegister" onclick="switchTab('register')">Register</div>
+        </div>
 
-        loginBtn.onclick = function() {
-            loginModal.style.display = 'block';
-        }
+        <!-- Login Form -->
+        <div id="loginForm">
+            <div class="modal-error" id="loginError"></div>
+            <div class="field-group">
+                <div class="field-label">Phone / Username</div>
+                <input class="field-input" type="text" id="loginPhone" placeholder="Enter your phone or username">
+            </div>
+            <div class="field-group">
+                <div class="field-label">Password</div>
+                <input class="field-input" type="password" id="loginPassword" placeholder="Enter your password">
+            </div>
+            <button class="submit-btn" onclick="doLogin()">Login</button>
+            <div class="modal-footer">Don't have an account? <a href="#" onclick="switchTab('register')">Register</a></div>
+        </div>
 
-        registerBtn.onclick = function() {
-            registerModal.style.display = 'block';
-        }
+        <!-- Register Form -->
+        <div id="registerForm" style="display:none">
+            <div class="modal-error" id="registerError"></div>
+            <div class="field-group">
+                <div class="field-label">Username</div>
+                <input class="field-input" type="text" id="regUsername" placeholder="Choose a username">
+            </div>
+            <div class="field-group">
+                <div class="field-label">Phone Number</div>
+                <input class="field-input" type="tel" id="regPhone" placeholder="Enter your phone number">
+            </div>
+            <div class="field-group">
+                <div class="field-label">Password</div>
+                <input class="field-input" type="password" id="regPassword" placeholder="Create a password (min 6 chars)">
+            </div>
+            <div class="field-group">
+                <div class="field-label">Confirm Password</div>
+                <input class="field-input" type="password" id="regConfirm" placeholder="Repeat your password">
+            </div>
+            <button class="submit-btn" onclick="doRegister()">Create Account & Get ₹1,000 Bonus</button>
+            <div class="modal-footer">Already have an account? <a href="#" onclick="switchTab('login')">Login</a></div>
+        </div>
+    </div>
+</div>
 
-        loginClose.onclick = function() {
-            loginModal.style.display = 'none';
-        }
+<div class="toast" id="toast"></div>
 
-        registerClose.onclick = function() {
-            registerModal.style.display = 'none';
-        }
+<script type="module">
+import { isLoggedIn, login, register, getUser } from './js/user.js';
 
-        window.onclick = function(event) {
-            if (event.target == loginModal) {
-                loginModal.style.display = 'none';
-            }
-            if (event.target == registerModal) {
-                registerModal.style.display = 'none';
-            }
-        }
+// If already logged in, go to game
+if (isLoggedIn()) {
+    window.location.href = 'index.html';
+}
 
-        // Form submissions (dummy)
-        document.getElementById('login-form').onsubmit = function(e) {
-            e.preventDefault();
-            alert('Login successful!');
-            loginModal.style.display = 'none';
-        }
+window.switchTab = function(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('tabLogin').classList.toggle('active', isLogin);
+    document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+    document.getElementById('loginForm').style.display = isLogin ? '' : 'none';
+    document.getElementById('registerForm').style.display = isLogin ? 'none' : '';
+};
 
-        document.getElementById('register-form').onsubmit = function(e) {
-            e.preventDefault();
-            alert('Registration successful!');
-            registerModal.style.display = 'none';
-        }
-    </script>
+function openModal(tab = 'login') {
+    switchTab(tab);
+    document.getElementById('authModal').classList.add('open');
+}
+
+function closeModal() {
+    document.getElementById('authModal').classList.remove('open');
+}
+
+document.getElementById('authModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+document.getElementById('openLogin').onclick = () => openModal('login');
+document.getElementById('openRegister').onclick = () => openModal('register');
+document.getElementById('openRegisterMain').onclick = () => openModal('register');
+document.getElementById('openLoginMain').onclick = () => openModal('login');
+document.getElementById('openRegisterBottom').onclick = () => openModal('register');
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+window.doLogin = function() {
+    const phone = document.getElementById('loginPhone').value.trim();
+    const pass = document.getElementById('loginPassword').value;
+    const err = document.getElementById('loginError');
+    err.style.display = 'none';
+
+    if (!phone || !pass) { err.textContent = 'Please fill in all fields.'; err.style.display = ''; return; }
+
+    // Check stored users
+    const users = JSON.parse(localStorage.getItem('wingo_users') || '[]');
+    const found = users.find(u => (u.username === phone || u.phone === phone) && u.password === pass);
+    if (!found) { err.textContent = 'Incorrect phone/username or password.'; err.style.display = ''; return; }
+
+    login(found);
+    showToast('Welcome back, ' + found.username + '!');
+    setTimeout(() => { window.location.href = 'index.html'; }, 800);
+};
+
+window.doRegister = function() {
+    const username = document.getElementById('regUsername').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const pass = document.getElementById('regPassword').value;
+    const confirm = document.getElementById('regConfirm').value;
+    const err = document.getElementById('registerError');
+    err.style.display = 'none';
+
+    if (!username || !phone || !pass) { err.textContent = 'Please fill in all fields.'; err.style.display = ''; return; }
+    if (pass.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.style.display = ''; return; }
+    if (pass !== confirm) { err.textContent = 'Passwords do not match.'; err.style.display = ''; return; }
+
+    const users = JSON.parse(localStorage.getItem('wingo_users') || '[]');
+    if (users.find(u => u.username === username)) { err.textContent = 'Username already taken.'; err.style.display = ''; return; }
+    if (users.find(u => u.phone === phone)) { err.textContent = 'Phone number already registered.'; err.style.display = ''; return; }
+
+    const user = register({ username, phone });
+    users.push({ username, phone, password: pass, uid: user.uid, createdAt: user.createdAt });
+    localStorage.setItem('wingo_users', JSON.stringify(users));
+
+    showToast('🎉 Account created! ₹1,000 bonus added!');
+    setTimeout(() => { window.location.href = 'index.html'; }, 900);
+};
+</script>
 </body>
 </html>

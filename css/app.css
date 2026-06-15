@@ -1,0 +1,349 @@
+:root {
+    --primary: #f5a623;
+    --primary-dark: #e08800;
+    --primary-light: #ffd57e;
+    --accent: #ff4757;
+    --green: #2ed573;
+    --violet: #a55eea;
+    --bg: #f2f2f7;
+    --card: #ffffff;
+    --text: #1c1c1e;
+    --text-secondary: #6c6c70;
+    --border: #e5e5ea;
+    --shadow: 0 2px 16px rgba(0,0,0,0.10);
+    --radius: 16px;
+    --tab-height: 64px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+}
+
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; outline: none; font-family: inherit; }
+input { outline: none; font-family: inherit; }
+
+/* ── Top App Bar ── */
+.app-bar {
+    background: linear-gradient(135deg, #f5a623 0%, #f0861a 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    padding-top: calc(16px + env(safe-area-inset-top));
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.app-bar h1 { font-size: 18px; font-weight: 700; }
+.app-bar .logo-txt { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+.app-bar .icon-btn {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px;
+}
+
+/* ── Bottom Tab Bar ── */
+.tab-bar {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%; max-width: 480px;
+    height: var(--tab-height);
+    background: #fff;
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 200;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+}
+.tab-item {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px;
+    color: #aaa;
+    font-size: 10px;
+    font-weight: 500;
+    transition: color 0.2s;
+    position: relative;
+}
+.tab-item.active { color: var(--primary-dark); }
+.tab-item .tab-icon { font-size: 22px; line-height: 1; }
+.tab-item.active::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 0 0 3px 3px;
+}
+
+/* ── Cards ── */
+.card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+.card-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 15px;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.card-body { padding: 16px 20px; }
+
+/* ── Buttons ── */
+.btn {
+    display: block; width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.2s;
+}
+.btn-primary {
+    background: linear-gradient(135deg, #f5a623, #e08800);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(240,134,26,0.35);
+}
+.btn-primary:active { transform: scale(0.97); }
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary-dark);
+}
+.btn-danger {
+    background: linear-gradient(135deg, #ff4757, #d63031);
+    color: #fff;
+}
+.btn-sm {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    width: auto;
+    display: inline-block;
+}
+
+/* ── Form fields ── */
+.field-group { margin-bottom: 16px; }
+.field-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
+.field-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    background: #fafafa;
+    transition: border-color 0.2s;
+}
+.field-input:focus { border-color: var(--primary); background: #fff; }
+.field-row {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: #fafafa;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+.field-row:focus-within { border-color: var(--primary); background: #fff; }
+.field-row .field-prefix {
+    padding: 13px 12px;
+    color: var(--text-secondary);
+    font-size: 15px;
+    border-right: 1px solid var(--border);
+    background: #f2f2f2;
+}
+.field-row input {
+    flex: 1; padding: 13px 16px;
+    border: none; background: transparent; font-size: 15px;
+}
+
+/* ── Balance card ── */
+.balance-card {
+    background: linear-gradient(135deg, #f5a623 0%, #e08800 100%);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    position: relative;
+    overflow: hidden;
+}
+.balance-card::before {
+    content: '';
+    position: absolute;
+    right: -30px; top: -30px;
+    width: 120px; height: 120px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50%;
+}
+.balance-card::after {
+    content: '';
+    position: absolute;
+    right: 20px; top: 40px;
+    width: 70px; height: 70px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+}
+.balance-label { font-size: 13px; opacity: 0.85; margin-bottom: 6px; }
+.balance-amount { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+.balance-uid { font-size: 11px; opacity: 0.7; margin-top: 4px; }
+.balance-actions { display: flex; gap: 10px; margin-top: 18px; }
+.balance-actions .btn { background: rgba(255,255,255,0.25); color: #fff; border-radius: 10px; padding: 10px; font-size: 14px; flex: 1; text-align: center; }
+.balance-actions .btn-green { background: rgba(46,213,115,0.85); }
+.balance-actions .btn-red { background: rgba(255,71,87,0.85); }
+
+/* ── List items ── */
+.list-item {
+    display: flex; align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 14px;
+}
+.list-item:last-child { border-bottom: none; }
+.list-item .li-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+}
+.list-item .li-title { font-size: 14px; font-weight: 500; }
+.list-item .li-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.list-item .li-right { margin-left: auto; color: var(--text-secondary); font-size: 18px; }
+.list-item .li-value { font-size: 14px; font-weight: 600; color: var(--text); }
+
+/* ── Avatar ── */
+.avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f5a623, #7c3aed);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 26px; font-weight: 700;
+    flex-shrink: 0;
+}
+.avatar.sm { width: 40px; height: 40px; font-size: 16px; }
+.avatar.lg { width: 80px; height: 80px; font-size: 32px; }
+
+/* ── Toast ── */
+.app-toast {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.8); color: #fff;
+    padding: 10px 24px; border-radius: 30px;
+    font-size: 14px; z-index: 9999;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+}
+.app-toast.show { opacity: 1; }
+
+/* ── Chip amounts ── */
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.chip {
+    padding: 8px 16px; border-radius: 20px;
+    border: 1.5px solid var(--border);
+    font-size: 13px; font-weight: 600;
+    background: #fff; color: var(--text);
+    transition: all 0.15s;
+}
+.chip.active, .chip:active {
+    border-color: var(--primary); background: #fff8ec; color: var(--primary-dark);
+}
+
+/* ── Section heading ── */
+.section-title {
+    font-size: 13px; font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 20px 20px 8px;
+}
+
+/* ── Badge ── */
+.badge {
+    display: inline-block; padding: 2px 8px;
+    border-radius: 20px; font-size: 11px; font-weight: 600;
+}
+.badge-green { background: #e8faf0; color: #27ae60; }
+.badge-red { background: #ffeef0; color: #e74c3c; }
+.badge-blue { background: #eef0ff; color: #4f46e5; }
+.badge-gray { background: #f0f0f0; color: #666; }
+
+/* ── Scrollable content with tab bar ── */
+.page-content {
+    padding: 16px;
+    padding-bottom: calc(var(--tab-height) + 16px + env(safe-area-inset-bottom));
+}
+
+/* ── Modal / Sheet ── */
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 500;
+    display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-sheet {
+    background: #fff;
+    border-radius: 24px 24px 0 0;
+    width: 100%; max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
+.modal-handle {
+    width: 40px; height: 4px;
+    background: #ddd; border-radius: 2px;
+    margin: 0 auto 20px;
+}
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; text-align: center; }
+
+/* ── Transaction row ── */
+.tx-row {
+    display: flex; align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+}
+.tx-row:last-child { border-bottom: none; }
+.tx-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.tx-info { flex: 1; }
+.tx-title { font-size: 14px; font-weight: 500; }
+.tx-date { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.tx-amount { font-size: 15px; font-weight: 700; }
+.tx-amount.credit { color: var(--green); }
+.tx-amount.debit { color: var(--accent); }
+
+/* ── Page header (back button) ── */
+.page-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #f5a623 0%, #e08800 100%);
+    color: #fff;
+    position: sticky; top: 0; z-index: 100;
+}
+.back-btn {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #fff;
+    flex-shrink: 0;
+}
+.page-header h1 { font-size: 17px; font-weight: 700; }

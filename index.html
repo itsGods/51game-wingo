@@ -12,6 +12,12 @@
     <link rel="stylesheet" href="./css/page-activity.css" />
     <link rel="stylesheet" href="./css/index.css" />
     <link rel="stylesheet" href="./css/page-home.css" />
+    <link rel="stylesheet" href="./css/app.css" />
+    <style>
+        /* Tab bar spacing for game page */
+        #app { padding-bottom: 64px; }
+        .Wallet__C-balance-l3 > div { cursor: pointer; }
+    </style>
 </head>
 
 <body style="font-size: 12px" cz-shortcut-listen="true" class="">
@@ -4596,7 +4602,7 @@
             <div data-v-7dd1adab="" data-v-5d71c3fd="" class="Wallet__C">
                 <div data-v-7dd1adab="" class="Wallet__C-balance">
                     <div data-v-7dd1adab="" class="Wallet__C-balance-l1">
-                        <div data-v-7dd1adab="">₹25,679.96</div>
+                        <div data-v-7dd1adab="" id="gameBalance">₹25,679.96</div>
                     </div>
                     <div data-v-7dd1adab="" class="Wallet__C-balance-l2">
                         <svg data-v-7dd1adab="" class="svg-icon icon-lottyWallet">
@@ -4605,8 +4611,8 @@
                         <div data-v-7dd1adab="">Wallet balance</div>
                     </div>
                     <div data-v-7dd1adab="" class="Wallet__C-balance-l3">
-                        <div data-v-7dd1adab="">Withdraw</div>
-                        <div data-v-7dd1adab="">Deposit</div>
+                        <div data-v-7dd1adab="" onclick="window.location.href='wallet.html'">Withdraw</div>
+                        <div data-v-7dd1adab="" onclick="window.location.href='wallet.html'">Deposit</div>
                     </div>
                 </div>
             </div>
@@ -5208,7 +5214,41 @@
         </div>
         <!----><!---->
     </div>
-</body>
-<script type="module" src="js/main.js"></script>
+<!-- Bottom Tab Bar -->
+<nav class="tab-bar">
+    <a class="tab-item" href="home.html"><span class="tab-icon">🏠</span><span>Home</span></a>
+    <a class="tab-item active" href="index.html"><span class="tab-icon">🎮</span><span>Game</span></a>
+    <a class="tab-item" href="wallet.html"><span class="tab-icon">💳</span><span>Wallet</span></a>
+    <a class="tab-item" href="profile.html"><span class="tab-icon">👤</span><span>Profile</span></a>
+</nav>
 
+<script type="module" src="js/main.js"></script>
+<script type="module">
+import { requireAuth, getBalance, setBalance, formatCurrency } from './js/user.js';
+
+// Auth guard — redirect to landing if not logged in
+if (!requireAuth('home.html')) throw new Error('redirect');
+
+// Sync balance display with user state
+const balEl = document.getElementById('gameBalance');
+const moneyEl = document.querySelector('.Wallet__C-balance-l1 > div');
+
+function syncBalance() {
+    const bal = getBalance();
+    const formatted = formatCurrency(bal);
+    if (balEl) balEl.textContent = formatted;
+    if (moneyEl && moneyEl !== balEl) moneyEl.textContent = formatted;
+}
+
+syncBalance();
+
+// Watch for balance changes made by the game's bet logic
+const observer = new MutationObserver(() => {
+    if (moneyEl) {
+        const val = parseFloat((moneyEl.textContent || '').replace(/[₹,]/g, ''));
+        if (!isNaN(val)) setBalance(val);
+    }
+});
+if (moneyEl) observer.observe(moneyEl, { characterData: true, childList: true, subtree: true });
+</script>
 </html>
