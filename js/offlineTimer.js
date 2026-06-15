@@ -1,45 +1,65 @@
-// [file name]: offlineTimer.js
+// offlineTimer.js — Period data generator for all WinGo game types
+
+const INTERVALS = {
+    "Win Go 30s":  30_000,
+    "Win Go 1Min": 60_000,
+    "Win Go 3Min": 180_000,
+    "Win Go 5Min": 300_000,
+};
+
+// Per-game issue-number sequence bases (mimics real WinGo format)
+const ISSUE_CONFIG = {
+    "Win Go 30s":  { base: 50001, pad: 5, mid: "100" },
+    "Win Go 1Min": { base: 10001, pad: 5, mid: "100" },
+    "Win Go 3Min": { base: 1001,  pad: 4, mid: "100" },
+    "Win Go 5Min": { base: 501,   pad: 4, mid: "100" },
+};
+
+export function getGameInterval(gameType) {
+    return INTERVALS[gameType] ?? 30_000;
+}
+
+/**
+ * Returns the ms-since-epoch of the next interval boundary after `nowMs`.
+ */
+export function getAlignedEndTime(gameType, nowMs = Date.now()) {
+    const iv = getGameInterval(gameType);
+    return nowMs + iv - (nowMs % iv);
+}
+
+/**
+ * Formats a WinGo-style issue number, e.g. "2025061510001052449"
+ *   YYYYMMDD + mid + zero-padded sequence number
+ */
+export function formatIssueNumber(gameType, nowMs = Date.now()) {
+    const d = new Date(nowMs);
+    const year  = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day   = String(d.getUTCDate()).padStart(2, '0');
+
+    const startOfDayMs = Date.UTC(year, d.getUTCMonth(), d.getUTCDate());
+    const iv = getGameInterval(gameType);
+    const periodsSinceMidnight = Math.floor((nowMs - startOfDayMs) / iv);
+
+    const { base, pad, mid } = ISSUE_CONFIG[gameType] ?? ISSUE_CONFIG["Win Go 30s"];
+    const seq = String(base + periodsSinceMidnight).padStart(pad, '0');
+
+    return `${year}${month}${day}${mid}${seq}`;
+}
+
+/**
+ * Main export: generate a full period data object for the given game type.
+ */
 export function generateOfflinePeriodData(gameType) {
-    const now = new Date();
-    const interval = getGameInterval(gameType);
-
-    const nextIntervalTime = now.getTime() + interval - (now.getTime() % interval);
-    const endTime = new Date(nextIntervalTime);
-
-    const totalPeriods = calculateTotalPeriods(now, interval);
+    const nowMs  = Date.now();
+    const endMs  = getAlignedEndTime(gameType, nowMs);
+    const secsLeft = Math.max(1, Math.ceil((endMs - nowMs) / 1000));
 
     return {
-        endTime: endTime.toISOString(),
-        issueNumber: formatIssueNumber(now, totalPeriods),
-        remainingSeconds: Math.ceil((endTime - now) / 1000),
-        offline: true
+        endTime:          new Date(endMs).toISOString(),
+        endTimeMs:        endMs,
+        issueNumber:      formatIssueNumber(gameType, nowMs),
+        remainingSeconds: secsLeft,
+        offline:          true,
     };
-}
-
-function getGameInterval(gameType) {
-    const intervals = {
-        "Win Go 30s": 30000,
-        "Win Go 1Min": 60000,
-        "Win Go 3Min": 180000,
-        "Win Go 5Min": 300000
-    };
-    return intervals[gameType] || 30000;
-}
-
-function calculateTotalPeriods(date, interval) {
-    const hours = date.getUTCHours();
-    const minutes = date.getUTCMinutes();
-    const seconds = date.getUTCSeconds();
-
-    if (interval === 30000) { // 30s
-        return hours * 120 + minutes * 2 + Math.floor(seconds / 30);
-    }
-    // Add calculations for other intervals if needed
-    return Math.floor((date.getTime() - new Date(date).setUTCHours(0, 0, 0, 0)) / interval);
-}
-function formatIssueNumber(date, totalPeriods) {
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    return `${year}${month}${day}1000${50001 + totalPeriods}`;
 }
