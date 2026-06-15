@@ -37,17 +37,15 @@ export async function handleMoneys() {
 
         money.textContent = fmt(currentBalance);
 
-        // Persist to wallet
         const u = await persistBalance(currentBalance);
-        u?.addTransaction('win', payout, `Won — ${evaluation.label}`);
+        u?.addTransaction('win', payout, `Won — ${evaluation.label}`, resultNum);
     } else {
-        // No payout — balance stays as-is (bet already deducted)
         winBonus.textContent = 'You Lost';
         winBonus.style.color = '#ff4757';
         money.textContent    = fmt(currentBalance);
 
         const u = await persistBalance(currentBalance);
-        u?.addTransaction('bet', betAmount, `Lost — ${evaluation.label}`);
+        u?.addTransaction('bet', betAmount, `Lost — ${evaluation.label}`, resultNum);
     }
 
     clearBet();

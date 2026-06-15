@@ -26,13 +26,14 @@ export function getTransactions() {
     return raw ? JSON.parse(raw) : [];
 }
 
-export function addTransaction(type, amount, note = '') {
+export function addTransaction(type, amount, note = '', result = null) {
     const txs = getTransactions();
     txs.unshift({
         id: Date.now(),
         type,
         amount,
         note,
+        result,
         date: new Date().toISOString(),
         balance: getBalance()
     });

@@ -32,27 +32,78 @@
             font-weight: 600; flex-shrink: 0;
         }
 
-        /* ── My bet history panel ── */
+        /* ── Bet History Panel ── */
         #myBetHistory {
-            background: rgba(255,255,255,0.04);
-            border-radius: 12px; padding: 10px 14px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 14px;
             margin: 0 10px 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.07);
         }
-        .my-bet-title {
-            font-size: 11px; color: rgba(255,255,255,0.5);
-            font-weight: 600; margin-bottom: 8px;
+        .bet-hist-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 14px 7px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
         }
-        .my-bet-item {
-            display: flex; align-items: center; gap: 8px;
-            padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+        .bet-hist-title {
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .bet-hist-count {
+            background: #f5a623; color: #fff;
+            border-radius: 20px; padding: 1px 8px;
+            font-size: 10px; font-weight: 800; min-width: 20px; text-align: center;
+        }
+        .bet-hist-cols {
+            display: grid;
+            grid-template-columns: 28px 1fr 48px 80px 42px;
+            gap: 4px;
+            padding: 5px 14px;
+            font-size: 9px; color: rgba(255,255,255,0.32);
+            text-transform: uppercase; letter-spacing: 0.6px;
+        }
+        .bet-hist-row {
+            display: grid;
+            grid-template-columns: 28px 1fr 48px 80px 42px;
+            gap: 4px;
+            align-items: center;
+            padding: 7px 14px;
+            border-top: 1px solid rgba(255,255,255,0.05);
             font-size: 11px;
+            animation: fadeInDown 0.22s ease both;
         }
-        .my-bet-item:last-child { border-bottom: none; }
-        .my-bet-type { font-weight: 700; flex-shrink: 0; width: 48px; }
-        .my-bet-result { flex: 1; color: rgba(255,255,255,0.5); }
-        .my-bet-amount { font-weight: 700; }
-        .my-bet-amount.won  { color: #2ed573; }
-        .my-bet-amount.lost { color: #ff4757; }
+        .bet-result-bubble {
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 800; flex-shrink: 0;
+        }
+        .brb-green  { background: rgba(46,213,115,0.22); color: #2ed573; }
+        .brb-red    { background: rgba(255,71,87,0.22);  color: #ff4757; }
+        .brb-mixed  { background: rgba(165,94,234,0.22); color: #c084fc; }
+        .brb-none   { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.3); }
+        .bet-hist-label {
+            color: rgba(255,255,255,0.82); font-weight: 600;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .bet-outcome-pill {
+            display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 5px; padding: 2px 5px;
+            font-size: 9px; font-weight: 800; width: fit-content;
+        }
+        .bop-win  { background: rgba(46,213,115,0.18); color: #2ed573; }
+        .bop-loss { background: rgba(255,71,87,0.18);  color: #ff4757; }
+        .bet-hist-amt { font-weight: 700; text-align: right; }
+        .bha-win  { color: #2ed573; }
+        .bha-loss { color: #ff4757; }
+        .bet-hist-time { color: rgba(255,255,255,0.3); font-size: 10px; text-align: right; }
+        .bet-hist-empty {
+            text-align: center; color: rgba(255,255,255,0.28);
+            font-size: 12px; padding: 22px 14px;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
 
         /* ── Live activity feed on game page ── */
         #gameLiveFeed {
@@ -5283,9 +5334,16 @@
 </div>
 
 <!-- My Bet History Panel -->
-<div id="myBetHistory" style="display:none">
-    <div class="my-bet-title">📋 My Recent Bets</div>
+<div id="myBetHistory">
+    <div class="bet-hist-header">
+        <span class="bet-hist-title">📋 My Bets</span>
+        <span id="betCount" class="bet-hist-count">0</span>
+    </div>
+    <div class="bet-hist-cols">
+        <span>No.</span><span>Bet</span><span>Result</span><span>Amount</span><span>Time</span>
+    </div>
     <div id="myBetItems"></div>
+    <div id="noBetsMsg" class="bet-hist-empty">Place your first bet to see history here</div>
 </div>
 
 <!-- Live Activity Feed on Game Page -->
@@ -5395,27 +5453,55 @@ function updateHotNumbers() {
 updateHotNumbers();
 setInterval(updateHotNumbers, 8000);
 
-// ── My bet history panel ──────────────────
+// ── Bet history panel ─────────────────────
+const BET_NUM_CLASS = n => {
+    if (n === null || n === undefined) return 'brb-none';
+    if (n === 0 || n === 5) return 'brb-mixed';
+    return [1,3,7,9].includes(n) ? 'brb-green' : 'brb-red';
+};
+
 function updateBetHistory() {
-    const txs = getTransactions();
-    const bets = txs.filter(t => t.type === 'bet' || t.type === 'win').slice(0, 5);
-    const panel = document.getElementById('myBetHistory');
-    const items = document.getElementById('myBetItems');
-    if (!bets.length) return;
-    panel.style.display = '';
+    const txs  = getTransactions();
+    const bets = txs.filter(t => t.type === 'bet' || t.type === 'win').slice(0, 10);
+    const items   = document.getElementById('myBetItems');
+    const countEl = document.getElementById('betCount');
+    const emptyEl = document.getElementById('noBetsMsg');
+
+    countEl.textContent = bets.length;
+
+    if (!bets.length) {
+        items.innerHTML = '';
+        emptyEl.style.display = '';
+        return;
+    }
+    emptyEl.style.display = 'none';
+
     items.innerHTML = bets.map(tx => {
-        const won = tx.type === 'win';
-        const sign = won ? '+' : '-';
-        const cls  = won ? 'won' : 'lost';
-        return `<div class="my-bet-item">
-            <div class="my-bet-type">${tx.note ? tx.note.replace('Bet on ','') : '—'}</div>
-            <div class="my-bet-result">${new Date(tx.date).toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'})}</div>
-            <div class="my-bet-amount ${cls}">${sign}${formatCurrency(Math.abs(tx.amount))}</div>
+        const won   = tx.type === 'win';
+        const sign  = won ? '+' : '−';
+        const r     = tx.result;
+
+        // Strip prefix & multiplier from note: "Won — Green ×2" → "Green"
+        const betLabel = (tx.note || '')
+            .replace(/^(Won|Lost)\s*—\s*/, '')
+            .replace(/\s×[\d.]+$/, '')
+            || '—';
+
+        const numTxt = (r !== null && r !== undefined) ? r : '—';
+        const numCls = BET_NUM_CLASS(r);
+        const time   = new Date(tx.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+        return `<div class="bet-hist-row">
+            <div class="bet-result-bubble ${numCls}">${numTxt}</div>
+            <div class="bet-hist-label">${betLabel}</div>
+            <div class="bet-outcome-pill ${won ? 'bop-win' : 'bop-loss'}">${won ? 'WIN' : 'LOSS'}</div>
+            <div class="bet-hist-amt ${won ? 'bha-win' : 'bha-loss'}">${sign}${formatCurrency(Math.abs(tx.amount))}</div>
+            <div class="bet-hist-time">${time}</div>
         </div>`;
     }).join('');
 }
 updateBetHistory();
-setInterval(updateBetHistory, 5000);
+setInterval(updateBetHistory, 4000);
 
 // ── Streak display ────────────────────────
 function updateStreak() {
