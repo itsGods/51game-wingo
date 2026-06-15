@@ -5,16 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Profile – 51Game</title>
     <link rel="icon" href="https://ossimg.51game-game.com/51game/other/h5setting_20240530145344k6oc.ico">
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/animations.css">
     <style>
+        /* ── Profile hero ── */
         .profile-hero {
             background: linear-gradient(135deg, #f5a623 0%, #e08800 100%);
-            padding: 24px 20px 32px;
+            padding: 24px 20px 28px;
             display: flex; align-items: center; gap: 16px;
+            position: relative; overflow: hidden;
         }
+        .profile-hero::before {
+            content: ''; position: absolute;
+            right: -20px; top: -20px;
+            width: 120px; height: 120px;
+            background: rgba(255,255,255,0.12); border-radius: 50%;
+        }
+        .profile-hero-info { position: relative; z-index: 1; }
         .profile-hero-info h2 { font-size: 20px; font-weight: 800; color: #fff; }
-        .profile-hero-info p { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 3px; }
+        .profile-hero-info p  { font-size: 13px; color: rgba(255,255,255,0.75); margin-top: 3px; }
         .profile-hero-info .uid { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+        .profile-hero-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+        /* ── Stats grid ── */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
+        .stat-cell {
+            text-align: center; padding: 16px 8px;
+            border-right: 1px solid var(--border);
+        }
+        .stat-cell:last-child { border-right: none; }
+        .stat-cell-val { font-size: 18px; font-weight: 800; }
+        .stat-cell-lbl { font-size: 10px; color: var(--text-secondary); margin-top: 4px; }
+
+        /* ── VIP progress bar ── */
+        .vip-card {
+            background: linear-gradient(135deg, #1a0a2e, #2a1060);
+            border-radius: 16px; padding: 18px 16px;
+            color: #fff; margin-bottom: 16px;
+            position: relative; overflow: hidden;
+        }
+        .vip-card::after {
+            content: ''; position: absolute;
+            right: -10px; bottom: -10px;
+            width: 100px; height: 100px;
+            background: rgba(245,166,35,0.1); border-radius: 50%;
+        }
+        .vip-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .vip-title { font-size: 14px; opacity: 0.75; }
+        .vip-progress-label { display: flex; justify-content: space-between; font-size: 11px; opacity: 0.6; margin-bottom: 5px; }
+        .vip-progress-bar { height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; overflow: hidden; }
+        .vip-progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg,#f5a623,#ffd57e); transition: width 1s ease; }
+        .vip-next { font-size: 11px; opacity: 0.6; margin-top: 5px; }
+
+        /* ── Streak card ── */
+        .streak-card {
+            background: linear-gradient(135deg,#ff6b35,#f5a623);
+            border-radius: 16px; padding: 16px; color: #fff;
+            display: flex; align-items: center; gap: 14px;
+            margin-bottom: 16px;
+        }
+        .streak-num { font-size: 36px; font-weight: 900; line-height: 1; }
+        .streak-info-title { font-size: 15px; font-weight: 700; }
+        .streak-info-sub { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+
+        /* ── Referral card ── */
+        .referral-card {
+            background: var(--card); border-radius: 16px;
+            padding: 18px 16px; box-shadow: var(--shadow);
+            margin-bottom: 16px;
+        }
+        .ref-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+        .ref-sub   { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.5; }
+        .ref-code-row { display: flex; gap: 8px; align-items: center; }
+        .ref-code {
+            flex: 1; padding: 12px 16px; background: var(--bg);
+            border: 1.5px dashed var(--primary); border-radius: 10px;
+            font-size: 18px; font-weight: 800; color: var(--primary-dark);
+            letter-spacing: 2px; text-align: center;
+        }
+        .ref-copy-btn {
+            padding: 12px 16px; background: linear-gradient(135deg,#f5a623,#e08800);
+            color: #fff; border-radius: 10px;
+            font-size: 13px; font-weight: 600; cursor: pointer; border: none;
+        }
+
+        /* ── Edit overlay ── */
         .edit-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.5);
             z-index: 500; display: flex; align-items: flex-end;
@@ -29,14 +105,27 @@
             transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
         }
         .edit-overlay.open .edit-sheet { transform: translateY(0); }
-        .toggle-row {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 20px;
-            border-bottom: 1px solid var(--border);
+
+        /* Logout sheet */
+        .logout-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+            z-index: 600; display: flex; align-items: flex-end;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
-        .toggle-row:last-child { border-bottom: none; }
-        .toggle-info .ti-title { font-size: 14px; font-weight: 500; }
-        .toggle-info .ti-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .logout-overlay.open { opacity: 1; pointer-events: all; }
+        .logout-sheet {
+            background: #fff; border-radius: 24px 24px 0 0;
+            width: 100%; max-width: 480px; margin: 0 auto;
+            padding: 28px 24px 48px; text-align: center;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+        }
+        .logout-overlay.open .logout-sheet { transform: translateY(0); }
+        .logout-icon { font-size: 48px; margin-bottom: 12px; }
+        .logout-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+        .logout-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; }
+
+        /* Toggle */
         .toggle {
             width: 46px; height: 26px;
             background: #ddd; border-radius: 13px;
@@ -50,43 +139,124 @@
             transition: left 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .toggle.on .toggle-knob { left: 22px; }
+        .toggle-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 20px; border-bottom: 1px solid var(--border);
+        }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-info .ti-title { font-size: 14px; font-weight: 500; }
+        .toggle-info .ti-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+        /* Win rate stat */
+        .win-rate-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+        .win-rate-fill { height: 100%; background: linear-gradient(90deg,#2ed573,#26b85b); border-radius: 3px; transition: width 1.2s ease; }
     </style>
 </head>
 <body>
 
 <!-- Profile Hero -->
-<div class="profile-hero">
-    <div class="avatar lg" id="avatarDisp">?</div>
+<div class="profile-hero anim-fade-in">
+    <div class="avatar lg" id="avatarDisp" style="border: 3px solid rgba(255,255,255,0.4)">?</div>
     <div class="profile-hero-info">
         <h2 id="usernameDisp">—</h2>
         <p id="phoneDisp">—</p>
         <div class="uid" id="uidDisp">—</div>
+        <div class="profile-hero-badges">
+            <span class="vip-badge" id="vipBadge">🥉 Bronze</span>
+            <span class="streak-badge" id="streakBadgeHero"><span class="streak-flame">🔥</span> <span id="streakNumHero">0</span> day streak</span>
+        </div>
     </div>
 </div>
 
-<div class="page-content" style="padding-top:16px">
+<div class="page-content" style="padding-top:14px">
+
+    <!-- VIP Level Progress -->
+    <div class="vip-card anim-fade-up delay-1">
+        <div class="vip-header">
+            <div>
+                <div class="vip-title">VIP Level</div>
+                <div class="vip-badge" id="vipBadgeFull" style="font-size:16px;padding:4px 12px">🥉 Bronze</div>
+            </div>
+            <div style="text-align:right;font-size:12px;opacity:0.7">
+                <div>Total Wagered</div>
+                <div id="vipWagered" style="font-size:18px;font-weight:800;color:#f5a623">₹0</div>
+            </div>
+        </div>
+        <div class="vip-progress-label">
+            <span>Progress to next level</span>
+            <span id="vipPct">0%</span>
+        </div>
+        <div class="vip-progress-bar"><div class="vip-progress-fill" id="vipFill" style="width:0%"></div></div>
+        <div class="vip-next" id="vipNext">Wager ₹10,000 to reach Silver</div>
+    </div>
+
+    <!-- Daily Streak -->
+    <div class="streak-card anim-fade-up delay-2">
+        <div>
+            <div class="streak-num" id="streakNum">🔥 0</div>
+        </div>
+        <div>
+            <div class="streak-info-title">Day Login Streak</div>
+            <div class="streak-info-sub">Log in daily to keep your streak alive!</div>
+        </div>
+    </div>
 
     <!-- Stats -->
-    <div class="card" style="margin-bottom:16px">
-        <div style="display:flex;gap:0">
-            <div style="flex:1;text-align:center;padding:16px;border-right:1px solid var(--border)">
-                <div style="font-size:20px;font-weight:800;color:var(--primary-dark)" id="balDisp">₹0</div>
-                <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">Balance</div>
+    <div class="card anim-fade-up delay-2" style="margin-bottom:16px">
+        <div class="stats-grid">
+            <div class="stat-cell">
+                <div class="stat-cell-val" style="color:var(--primary-dark)" id="balDisp">₹0</div>
+                <div class="stat-cell-lbl">Balance</div>
             </div>
-            <div style="flex:1;text-align:center;padding:16px;border-right:1px solid var(--border)">
-                <div style="font-size:20px;font-weight:800;color:var(--green)" id="txCount">0</div>
-                <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">Transactions</div>
+            <div class="stat-cell">
+                <div class="stat-cell-val" style="color:var(--green)" id="txCount">0</div>
+                <div class="stat-cell-lbl">Bets Placed</div>
             </div>
-            <div style="flex:1;text-align:center;padding:16px">
-                <div style="font-size:20px;font-weight:800;color:#a55eea" id="memberDays">0</div>
-                <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">Days Active</div>
+            <div class="stat-cell">
+                <div class="stat-cell-val" style="color:#a55eea" id="memberDays">0</div>
+                <div class="stat-cell-lbl">Days Active</div>
+            </div>
+        </div>
+        <!-- Win rate -->
+        <div style="padding:12px 20px 16px;border-top:1px solid var(--border)">
+            <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px">
+                <span>Win Rate</span>
+                <span style="color:var(--green)" id="winRateLabel">0%</span>
+            </div>
+            <div class="win-rate-bar"><div class="win-rate-fill" id="winRateFill" style="width:0%"></div></div>
+        </div>
+        <!-- Extra stats -->
+        <div style="display:flex;border-top:1px solid var(--border)">
+            <div style="flex:1;text-align:center;padding:12px;border-right:1px solid var(--border)">
+                <div style="font-size:15px;font-weight:700;color:var(--green)" id="totalWonStat">₹0</div>
+                <div style="font-size:10px;color:var(--text-secondary);margin-top:3px">Total Won</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:12px">
+                <div style="font-size:15px;font-weight:700;color:var(--accent)" id="totalLostStat">₹0</div>
+                <div style="font-size:10px;color:var(--text-secondary);margin-top:3px">Total Lost</div>
             </div>
         </div>
     </div>
 
+    <!-- Referral -->
+    <div class="referral-card anim-fade-up delay-3">
+        <div class="ref-title">🎁 Refer & Earn</div>
+        <div class="ref-sub">Invite friends and earn rewards when they play. Share your unique referral code.</div>
+        <div class="ref-code-row">
+            <div class="ref-code" id="refCode">—</div>
+            <button class="ref-copy-btn" onclick="copyRef()">📋 Share</button>
+        </div>
+    </div>
+
+    <!-- Achievements -->
+    <div class="section-title">🏅 Achievements</div>
+    <div class="card anim-fade-up delay-3" style="margin-bottom:16px">
+        <div class="card-body" id="achievementsList" style="padding:12px 16px"></div>
+    </div>
+
     <!-- Account -->
     <div class="section-title">Account</div>
-    <div class="card" style="margin-bottom:16px">
+    <div class="card anim-fade-up delay-4" style="margin-bottom:16px">
         <div class="list-item" onclick="openEdit('username')">
             <div class="li-icon" style="background:#fff8ec">✏️</div>
             <div><div class="li-title">Edit Username</div><div class="li-sub" id="subUsername">—</div></div>
@@ -106,7 +276,7 @@
 
     <!-- Wallet -->
     <div class="section-title">Wallet</div>
-    <div class="card" style="margin-bottom:16px">
+    <div class="card anim-fade-up delay-4" style="margin-bottom:16px">
         <a class="list-item" href="wallet.html">
             <div class="li-icon" style="background:#fff8ec">💳</div>
             <div><div class="li-title">My Wallet</div><div class="li-sub">Deposit, withdraw & history</div></div>
@@ -116,44 +286,51 @@
 
     <!-- Preferences -->
     <div class="section-title">Preferences</div>
-    <div class="card" style="margin-bottom:16px">
+    <div class="card anim-fade-up delay-5" style="margin-bottom:16px">
         <div class="toggle-row">
             <div class="toggle-info">
-                <div class="ti-title">Sound Effects</div>
+                <div class="ti-title">🌙 Dark Mode</div>
+                <div class="ti-sub">Switch to dark theme</div>
+            </div>
+            <div class="toggle" id="toggleDark" onclick="togglePref('dark')"><div class="toggle-knob"></div></div>
+        </div>
+        <div class="toggle-row">
+            <div class="toggle-info">
+                <div class="ti-title">🔊 Sound Effects</div>
                 <div class="ti-sub">Countdown & result sounds</div>
             </div>
-            <div class="toggle on" id="toggleSound" onclick="toggle('sound')"><div class="toggle-knob"></div></div>
+            <div class="toggle on" id="toggleSound" onclick="togglePref('sound')"><div class="toggle-knob"></div></div>
         </div>
         <div class="toggle-row">
             <div class="toggle-info">
-                <div class="ti-title">Notifications</div>
+                <div class="ti-title">🔔 Notifications</div>
                 <div class="ti-sub">Game result alerts</div>
             </div>
-            <div class="toggle" id="toggleNotif" onclick="toggle('notif')"><div class="toggle-knob"></div></div>
+            <div class="toggle" id="toggleNotif" onclick="togglePref('notif')"><div class="toggle-knob"></div></div>
         </div>
         <div class="toggle-row">
             <div class="toggle-info">
-                <div class="ti-title">Auto-confirm Bets</div>
+                <div class="ti-title">⚡ Auto-confirm Bets</div>
                 <div class="ti-sub">Skip confirmation dialog</div>
             </div>
-            <div class="toggle" id="toggleAuto" onclick="toggle('auto')"><div class="toggle-knob"></div></div>
+            <div class="toggle" id="toggleAuto" onclick="togglePref('auto')"><div class="toggle-knob"></div></div>
         </div>
     </div>
 
     <!-- Support -->
     <div class="section-title">Support</div>
-    <div class="card" style="margin-bottom:16px">
-        <div class="list-item" onclick="toast('Live chat coming soon')">
+    <div class="card anim-fade-up delay-5" style="margin-bottom:16px">
+        <div class="list-item" onclick="toast('Live chat coming soon!')">
             <div class="li-icon" style="background:#eef0ff">💬</div>
             <div><div class="li-title">Live Support</div><div class="li-sub">Chat with us 24/7</div></div>
             <div class="li-right">›</div>
         </div>
-        <div class="list-item" onclick="toast('FAQ coming soon')">
+        <div class="list-item" onclick="toast('FAQ opening soon...')">
             <div class="li-icon" style="background:#f0faf5">❓</div>
             <div><div class="li-title">FAQ</div><div class="li-sub">Common questions answered</div></div>
             <div class="li-right">›</div>
         </div>
-        <div class="list-item" onclick="toast('Terms opening...')">
+        <div class="list-item" onclick="toast('Terms & Privacy opening...')">
             <div class="li-icon" style="background:#f8f0ff">📄</div>
             <div><div class="li-title">Terms & Privacy</div><div class="li-sub">Our policies</div></div>
             <div class="li-right">›</div>
@@ -161,8 +338,8 @@
     </div>
 
     <!-- Logout -->
-    <button class="btn btn-danger" onclick="doLogout()" style="margin-bottom:8px">🚪 Logout</button>
-    <p style="text-align:center;font-size:11px;color:var(--text-secondary)">51Game WinGo v1.0.0</p>
+    <button class="btn btn-danger anim-fade-up delay-6" onclick="openLogout()" style="margin-bottom:8px">🚪 Logout</button>
+    <p style="text-align:center;font-size:11px;color:var(--text-secondary);margin-bottom:24px">51Game WinGo v2.0.0</p>
 
 </div>
 
@@ -183,103 +360,186 @@
     </div>
 </div>
 
+<!-- Logout Confirmation Sheet -->
+<div class="logout-overlay" id="logoutOverlay">
+    <div class="logout-sheet">
+        <div class="modal-handle" style="width:40px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 20px"></div>
+        <div class="logout-icon">🚪</div>
+        <div class="logout-title">Log Out?</div>
+        <div class="logout-sub">You'll need to login again to access your account and game.</div>
+        <button class="btn btn-danger" onclick="doLogout()" style="margin-bottom:10px">Yes, Logout</button>
+        <button class="btn btn-outline" onclick="closeLogout()">Cancel</button>
+    </div>
+</div>
+
 <div class="app-toast" id="toast"></div>
 
 <script type="module">
 import { requireAuth, getUser, getBalance, getTransactions, logout, login, formatCurrency } from './js/user.js';
+import { initAll, getVipLevel, getAchievements, getReferralCode, shareReferral, getDailyStreak, countUp, copyText, initReveal, toggleDarkMode, initDarkMode } from './js/enhancements.js';
+
 if (!requireAuth('home.html')) throw new Error('Not logged in');
+initAll();
+initReveal();
+initDarkMode();
 
 let user = getUser();
 
+// ── Render ─────────────────────────────────
 function render() {
-    const initials = user.username ? user.username.slice(0,2).toUpperCase() : '?';
+    const txs = getTransactions();
+    const bal = getBalance();
+
+    // Avatar & hero
+    const initials = (user.username || '?').slice(0,2).toUpperCase();
+    const hue = [...(user.username||'A')].reduce((h,c) => h + c.charCodeAt(0), 0) % 360;
     document.getElementById('avatarDisp').textContent = initials;
+    document.getElementById('avatarDisp').style.background = `linear-gradient(135deg,hsl(${hue},70%,50%),hsl(${(hue+60)%360},70%,40%))`;
     document.getElementById('usernameDisp').textContent = user.username || '—';
     document.getElementById('phoneDisp').textContent = user.phone || 'No phone set';
     document.getElementById('uidDisp').textContent = user.uid || '';
     document.getElementById('subUsername').textContent = user.username || '—';
     document.getElementById('subPhone').textContent = user.phone || 'Not set';
-    document.getElementById('balDisp').textContent = formatCurrency(getBalance());
-    document.getElementById('txCount').textContent = getTransactions().length;
+
+    // Stats
+    countUp(document.getElementById('balDisp'), bal, 800, '₹', '');
+    const bets = txs.filter(t => t.type === 'bet' || t.type === 'win');
+    document.getElementById('txCount').textContent = bets.length;
     const days = user.createdAt ? Math.floor((Date.now() - new Date(user.createdAt)) / 86400000) + 1 : 1;
     document.getElementById('memberDays').textContent = days;
 
-    // Load preferences
+    // Win rate
+    const wins = txs.filter(t => t.type === 'win');
+    const losses = txs.filter(t => t.type === 'bet');
+    const totalGames = wins.length + losses.length;
+    const winRate = totalGames ? Math.round((wins.length / totalGames) * 100) : 0;
+    document.getElementById('winRateLabel').textContent = winRate + '%';
+    document.getElementById('winRateFill').style.width = winRate + '%';
+
+    const totalWon  = wins.reduce((s,t)=>s+t.amount,0);
+    const totalLost = losses.reduce((s,t)=>s+t.amount,0);
+    countUp(document.getElementById('totalWonStat'), totalWon, 600, '₹', '');
+    countUp(document.getElementById('totalLostStat'), totalLost, 600, '₹', '');
+
+    // VIP
+    const wagered = losses.reduce((s,t) => s+t.amount, 0) + wins.reduce((s,t) => s + (t.amount / 2), 0);
+    const vip = getVipLevel(wagered);
+    countUp(document.getElementById('vipWagered'), wagered, 800, '₹', '');
+    document.getElementById('vipBadge').className = `vip-badge ${vip.class}`;
+    document.getElementById('vipBadge').textContent = `${vip.emoji} ${vip.level}`;
+    document.getElementById('vipBadgeFull').className = `vip-badge ${vip.class}`;
+    document.getElementById('vipBadgeFull').textContent = `${vip.emoji} ${vip.level}`;
+    if (vip.nextAt) {
+        const pct = Math.min(100, Math.round((wagered / vip.nextAt) * 100));
+        document.getElementById('vipFill').style.width = pct + '%';
+        document.getElementById('vipPct').textContent = pct + '%';
+        document.getElementById('vipNext').textContent = `Wager ${formatCurrency(vip.nextAt - wagered)} more to reach ${vip.next}`;
+    } else {
+        document.getElementById('vipFill').style.width = '100%';
+        document.getElementById('vipPct').textContent = '100%';
+        document.getElementById('vipNext').textContent = '🎉 Maximum VIP level reached!';
+    }
+
+    // Daily streak
+    const streak = getDailyStreak();
+    document.getElementById('streakNum').textContent = '🔥 ' + streak;
+    document.getElementById('streakNumHero').textContent = streak;
+
+    // Referral
+    const refCode = getReferralCode(user.uid);
+    document.getElementById('refCode').textContent = refCode;
+
+    // Achievements
+    const achs = getAchievements(txs, bal);
+    document.getElementById('achievementsList').innerHTML = achs.map(a =>
+        `<div class="achievement ${a.earned ? '' : 'locked'}">
+            <div class="achievement-icon">${a.icon}</div>
+            <div class="achievement-info">
+                <div class="ach-title">${a.title} ${a.earned ? '✅' : '🔒'}</div>
+                <div class="ach-desc">${a.desc}</div>
+            </div>
+        </div>`
+    ).join('');
+
+    // Preferences
     const prefs = JSON.parse(localStorage.getItem('wingo_prefs') || '{}');
-    setToggleState('sound', prefs.sound !== false);
-    setToggleState('notif', prefs.notif === true);
-    setToggleState('auto', prefs.auto === true);
+    setToggle('Sound', prefs.sound !== false);
+    setToggle('Notif', prefs.notif === true);
+    setToggle('Auto',  prefs.auto  === true);
+    setToggle('Dark',  document.documentElement.getAttribute('data-theme') === 'dark');
 }
 
-function setToggleState(key, val) {
-    const el = document.getElementById('toggle' + key.charAt(0).toUpperCase() + key.slice(1));
-    if (val) el.classList.add('on'); else el.classList.remove('on');
+function setToggle(key, val) {
+    const el = document.getElementById('toggle' + key);
+    if (!el) return;
+    el.classList.toggle('on', val);
 }
 
 render();
 
-window.toggle = function(key) {
+// ── Pref toggles ─────────────────────────
+window.togglePref = function(key) {
+    if (key === 'dark') {
+        const isDark = toggleDarkMode();
+        setToggle('Dark', isDark);
+        return;
+    }
     const prefs = JSON.parse(localStorage.getItem('wingo_prefs') || '{}');
     prefs[key] = !prefs[key];
-    if (key === 'sound' && prefs[key] === undefined) prefs[key] = false;
     localStorage.setItem('wingo_prefs', JSON.stringify(prefs));
-    setToggleState(key, prefs[key]);
+    setToggle(key.charAt(0).toUpperCase() + key.slice(1), prefs[key]);
 };
 
+// ── Toast ─────────────────────────────────
 window.toast = function(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2500);
 };
 
-window.doLogout = function() {
-    if (!confirm('Are you sure you want to logout?')) return;
-    logout();
-    window.location.href = 'home.html';
-};
+// ── Logout ────────────────────────────────
+window.openLogout  = () => document.getElementById('logoutOverlay').classList.add('open');
+window.closeLogout = () => document.getElementById('logoutOverlay').classList.remove('open');
+window.doLogout    = () => { logout(); window.location.href = 'home.html'; };
+document.getElementById('logoutOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('logoutOverlay')) closeLogout();
+});
 
+// ── Edit ──────────────────────────────────
 let currentEdit = '';
 window.openEdit = function(type) {
     currentEdit = type;
     const overlay = document.getElementById('editOverlay');
-    const body = document.getElementById('editBody');
-    const title = document.getElementById('editTitle');
-
+    const body    = document.getElementById('editBody');
+    const title   = document.getElementById('editTitle');
     if (type === 'username') {
         title.textContent = 'Edit Username';
-        body.innerHTML = `
-            <div class="field-group"><div class="field-label">New Username</div>
-            <input class="field-input" type="text" id="newVal" value="${user.username || ''}" placeholder="Enter new username"></div>
-            <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+        body.innerHTML = `<div class="field-group"><div class="field-label">New Username</div>
+            <input class="field-input" type="text" id="newVal" value="${user.username||''}" placeholder="Enter new username"></div>
+            <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
             <button class="btn btn-outline" style="margin-top:10px" onclick="closeEdit()">Cancel</button>`;
     } else if (type === 'phone') {
         title.textContent = 'Update Phone';
-        body.innerHTML = `
-            <div class="field-group"><div class="field-label">Phone Number</div>
-            <input class="field-input" type="tel" id="newVal" value="${user.phone || ''}" placeholder="Enter phone number"></div>
-            <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+        body.innerHTML = `<div class="field-group"><div class="field-label">Phone Number</div>
+            <input class="field-input" type="tel" id="newVal" value="${user.phone||''}" placeholder="Enter phone number"></div>
+            <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
             <button class="btn btn-outline" style="margin-top:10px" onclick="closeEdit()">Cancel</button>`;
     } else if (type === 'password') {
         title.textContent = 'Change Password';
-        body.innerHTML = `
-            <div class="field-group"><div class="field-label">Current Password</div>
+        body.innerHTML = `<div class="field-group"><div class="field-label">Current Password</div>
             <input class="field-input" type="password" id="curPass" placeholder="Current password"></div>
             <div class="field-group"><div class="field-label">New Password</div>
             <input class="field-input" type="password" id="newPass" placeholder="New password (min 6 chars)"></div>
-            <div class="field-group"><div class="field-label">Confirm New Password</div>
-            <input class="field-input" type="password" id="confPass" placeholder="Repeat new password"></div>
+            <div class="field-group"><div class="field-label">Confirm Password</div>
+            <input class="field-input" type="password" id="confPass" placeholder="Repeat password"></div>
             <button class="btn btn-primary" onclick="savePass()">Change Password</button>
             <button class="btn btn-outline" style="margin-top:10px" onclick="closeEdit()">Cancel</button>`;
     }
     overlay.classList.add('open');
 };
-
-window.closeEdit = function() {
-    document.getElementById('editOverlay').classList.remove('open');
-};
-
-document.getElementById('editOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closeEdit();
+window.closeEdit = () => document.getElementById('editOverlay').classList.remove('open');
+document.getElementById('editOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('editOverlay')) closeEdit();
 });
 
 window.saveEdit = function() {
@@ -287,30 +547,28 @@ window.saveEdit = function() {
     if (!val) { toast('Field cannot be empty'); return; }
     user[currentEdit] = val;
     login(user);
-    // Update stored user list too
     const users = JSON.parse(localStorage.getItem('wingo_users') || '[]');
     const idx = users.findIndex(u => u.uid === user.uid);
-    if (idx > -1) {
-        if (currentEdit === 'username') users[idx].username = val;
-        if (currentEdit === 'phone') users[idx].phone = val;
-        localStorage.setItem('wingo_users', JSON.stringify(users));
-    }
+    if (idx > -1) { users[idx][currentEdit] = val; localStorage.setItem('wingo_users', JSON.stringify(users)); }
     closeEdit(); render(); toast('✅ Updated successfully!');
 };
 
 window.savePass = function() {
-    const cur = document.getElementById('curPass').value;
+    const cur  = document.getElementById('curPass').value;
     const newP = document.getElementById('newPass').value;
     const conf = document.getElementById('confPass').value;
     const users = JSON.parse(localStorage.getItem('wingo_users') || '[]');
     const idx = users.findIndex(u => u.uid === user.uid);
-    if (idx === -1 || users[idx].password !== cur) { toast('Current password incorrect'); return; }
-    if (newP.length < 6) { toast('New password must be at least 6 characters'); return; }
-    if (newP !== conf) { toast('Passwords do not match'); return; }
+    if (idx === -1 || users[idx].password !== cur) { toast('Current password is incorrect'); return; }
+    if (newP.length < 6) { toast('Password must be at least 6 characters'); return; }
+    if (newP !== conf)   { toast('Passwords do not match'); return; }
     users[idx].password = newP;
     localStorage.setItem('wingo_users', JSON.stringify(users));
     closeEdit(); toast('✅ Password changed!');
 };
+
+// ── Referral ──────────────────────────────
+window.copyRef = () => shareReferral(getReferralCode(user.uid));
 </script>
 </body>
 </html>

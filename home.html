@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>51Game WinGo</title>
+    <title>51Game WinGo — Win Every 30 Seconds</title>
     <link rel="icon" href="https://ossimg.51game-game.com/51game/other/h5setting_20240530145344k6oc.ico">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/animations.css">
+    <meta name="theme-color" content="#f5a623">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -19,24 +22,25 @@
         a { text-decoration: none; color: inherit; }
         button { cursor: pointer; border: none; outline: none; font-family: inherit; }
 
-        /* Hero */
+        /* ── Hero ── */
         .hero {
             min-height: 100vh;
             background: linear-gradient(160deg, #1a0a2e 0%, #0f0f1a 40%, #0a1628 100%);
             display: flex; flex-direction: column;
             position: relative; overflow: hidden;
         }
-        .hero::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: radial-gradient(ellipse at 20% 20%, rgba(245,166,35,0.15) 0%, transparent 60%),
-                        radial-gradient(ellipse at 80% 80%, rgba(124,58,237,0.15) 0%, transparent 60%);
+        .hero-bg-glow {
+            position: absolute; inset: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse at 15% 20%, rgba(245,166,35,0.18) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 75%, rgba(124,58,237,0.18) 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 50%, rgba(46,213,115,0.06) 0%, transparent 60%);
         }
 
-        /* Nav */
+        /* ── Nav ── */
         .nav {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 20px 24px;
+            padding: 18px 20px;
             position: relative; z-index: 10;
         }
         .nav-logo { display: flex; align-items: center; gap: 10px; }
@@ -45,161 +49,233 @@
             background: linear-gradient(135deg, #f5a623, #e08800);
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
+            box-shadow: 0 4px 14px rgba(245,166,35,0.4);
         }
-        .nav-logo span { font-size: 20px; font-weight: 800; color: #fff; }
+        .nav-logo span { font-size: 20px; font-weight: 800; }
         .nav-logo span em { color: #f5a623; font-style: normal; }
-        .nav-btns { display: flex; gap: 10px; }
+        .nav-btns { display: flex; gap: 8px; }
         .nav-btn {
-            padding: 9px 18px; border-radius: 20px;
-            font-size: 14px; font-weight: 600;
+            padding: 9px 16px; border-radius: 20px;
+            font-size: 13px; font-weight: 600;
+            transition: all 0.2s;
         }
         .nav-btn-login {
             background: transparent;
-            border: 1.5px solid rgba(255,255,255,0.3);
+            border: 1.5px solid rgba(255,255,255,0.25);
             color: #fff;
         }
+        .nav-btn-login:hover { border-color: rgba(255,255,255,0.5); }
         .nav-btn-register {
             background: linear-gradient(135deg, #f5a623, #e08800);
             color: #fff;
+            box-shadow: 0 4px 12px rgba(245,166,35,0.3);
         }
 
-        /* Hero content */
+        /* ── Live badge ── */
+        .live-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(245,166,35,0.12);
+            border: 1px solid rgba(245,166,35,0.3);
+            color: #f5a623;
+            padding: 6px 14px; border-radius: 20px;
+            font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+            margin-bottom: 22px;
+        }
+        .live-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #2ed573;
+            animation: pulse 1.5s ease-in-out infinite;
+            box-shadow: 0 0 6px rgba(46,213,115,0.8);
+        }
+
+        /* ── Hero content ── */
         .hero-content {
             flex: 1;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            padding: 40px 24px;
+            padding: 20px 24px 30px;
             text-align: center;
             position: relative; z-index: 5;
         }
-        .hero-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            background: rgba(245,166,35,0.15);
-            border: 1px solid rgba(245,166,35,0.3);
-            color: #f5a623;
-            padding: 6px 14px; border-radius: 20px;
-            font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
-            margin-bottom: 24px;
-        }
         .hero-title {
-            font-size: 42px; font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 16px;
-            background: linear-gradient(135deg, #fff 0%, #f5a623 100%);
+            font-size: 44px; font-weight: 900;
+            line-height: 1.08;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #fff 0%, #ffd57e 50%, #f5a623 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            background-size: 200% auto;
+            animation: gradientShift 4s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%,100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
         .hero-subtitle {
-            font-size: 16px; color: rgba(255,255,255,0.65);
-            line-height: 1.6; max-width: 340px;
-            margin-bottom: 36px;
+            font-size: 15px; color: rgba(255,255,255,0.6);
+            line-height: 1.65; max-width: 320px;
+            margin-bottom: 32px;
         }
-        .hero-cta { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px; }
+        .hero-cta { display: flex; flex-direction: column; gap: 11px; width: 100%; max-width: 300px; }
         .cta-primary {
             padding: 16px;
             background: linear-gradient(135deg, #f5a623, #e08800);
             color: #fff; border-radius: 16px;
             font-size: 16px; font-weight: 700;
-            box-shadow: 0 8px 30px rgba(245,166,35,0.4);
-            display: block; text-align: center;
+            box-shadow: 0 8px 30px rgba(245,166,35,0.45);
+            transition: transform 0.15s, box-shadow 0.15s;
         }
+        .cta-primary:active { transform: scale(0.97); box-shadow: 0 4px 16px rgba(245,166,35,0.3); }
         .cta-secondary {
             padding: 15px;
-            background: rgba(255,255,255,0.08);
-            border: 1.5px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.07);
+            border: 1.5px solid rgba(255,255,255,0.14);
             color: #fff; border-radius: 16px;
-            font-size: 16px; font-weight: 600;
-            display: block; text-align: center;
+            font-size: 15px; font-weight: 600;
+            transition: background 0.2s;
         }
+        .cta-secondary:active { background: rgba(255,255,255,0.12); }
 
-        /* Floating game modes preview */
+        /* ── Recent results ticker ── */
+        .results-ticker {
+            margin-top: 24px;
+            width: 100%;
+        }
+        .ticker-label { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 8px; text-align: center; }
+        .ticker-nums {
+            display: flex; gap: 8px; justify-content: center; flex-wrap: nowrap; overflow: hidden;
+        }
+        .ticker-num {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 800; color: #fff;
+            flex-shrink: 0;
+        }
+        .tn-green  { background: linear-gradient(135deg,#2ed573,#26b85b); box-shadow: 0 3px 10px rgba(46,213,115,0.4); }
+        .tn-red    { background: linear-gradient(135deg,#ff4757,#d63031); box-shadow: 0 3px 10px rgba(255,71,87,0.4); }
+        .tn-violet { background: linear-gradient(135deg,#a55eea,#7c3aed); box-shadow: 0 3px 10px rgba(165,94,234,0.4); }
+        .tn-mixed  { background: linear-gradient(135deg,#a55eea 0%,#ff4757 100%); }
+
+        /* ── Game modes ── */
         .modes-preview {
-            display: flex; gap: 10px;
-            justify-content: center; flex-wrap: wrap;
-            margin-top: 40px; position: relative; z-index: 5;
+            display: flex; gap: 8px;
+            justify-content: center;
+            margin-top: 0; padding: 0 20px 30px;
+            position: relative; z-index: 5;
         }
         .mode-chip {
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 12px;
-            padding: 12px 16px;
+            flex: 1;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 14px 8px;
             text-align: center;
+            transition: all 0.2s;
         }
-        .mode-chip .time { font-size: 16px; font-weight: 800; color: #f5a623; }
-        .mode-chip .label { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+        .mode-chip:active { background: rgba(245,166,35,0.15); border-color: rgba(245,166,35,0.3); }
+        .mode-chip .time { font-size: 15px; font-weight: 800; color: #f5a623; }
+        .mode-chip .label { font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+        .mode-chip .odds { font-size: 9px; color: #2ed573; margin-top: 2px; font-weight: 600; }
 
-        /* Stats strip */
+        /* ── Marquee wins ── */
+        .wins-marquee {
+            background: rgba(255,255,255,0.04);
+            border-top: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 10px 0;
+            overflow: hidden;
+            position: relative; z-index: 5;
+        }
+        .wins-marquee-inner {
+            display: flex; gap: 32px;
+            white-space: nowrap;
+            animation: marquee 22s linear infinite;
+        }
+        .win-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(46,213,115,0.12);
+            border: 1px solid rgba(46,213,115,0.2);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px; color: rgba(255,255,255,0.8); white-space: nowrap;
+        }
+        .win-pill .w-amt { color: #2ed573; font-weight: 700; }
+
+        /* ── Stats ── */
         .stats-strip {
             background: rgba(255,255,255,0.04);
-            border-top: 1px solid rgba(255,255,255,0.07);
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-            padding: 20px 24px;
+            padding: 22px 20px;
             display: flex; justify-content: space-around;
         }
         .stat { text-align: center; }
-        .stat-val { font-size: 20px; font-weight: 800; color: #f5a623; }
-        .stat-lbl { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 3px; }
+        .stat-val { font-size: 22px; font-weight: 800; color: #f5a623; }
+        .stat-lbl { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 4px; }
 
-        /* Features */
-        .section { padding: 40px 24px; }
-        .section-title { font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 24px; }
+        /* ── Live player count ── */
+        .live-players {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 20px;
+            background: rgba(46,213,115,0.07);
+            border-bottom: 1px solid rgba(46,213,115,0.12);
+        }
+        .lp-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ed573; animation: pulse 1.2s ease infinite; }
+        .lp-text { font-size: 13px; color: rgba(255,255,255,0.7); }
+        .lp-count { color: #2ed573; font-weight: 700; }
+
+        /* ── Features ── */
+        .section { padding: 36px 20px; }
+        .section-title { font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 22px; }
         .section-title span { color: #f5a623; }
-        .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .feature-card {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 16px;
             padding: 18px 14px;
+            transition: all 0.2s;
         }
-        .feature-icon { font-size: 28px; margin-bottom: 10px; }
+        .feature-card:active { transform: scale(0.97); }
+        .feature-icon { font-size: 26px; margin-bottom: 10px; }
         .feature-title { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
         .feature-desc { font-size: 11px; color: rgba(255,255,255,0.5); line-height: 1.5; }
 
-        /* Payout table */
+        /* ── Payout table ── */
         .payout-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .payout-table th {
-            background: rgba(245,166,35,0.15);
-            color: #f5a623; padding: 10px 12px;
-            text-align: left; font-weight: 600;
+            background: rgba(245,166,35,0.15); color: #f5a623;
+            padding: 10px 12px; text-align: left; font-weight: 600;
         }
         .payout-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
         .payout-table tr:last-child td { border-bottom: none; }
-        .color-dot {
-            width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle;
-        }
+        .color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: middle; }
 
-        /* Bottom CTA */
+        /* ── Bottom CTA ── */
         .bottom-cta {
             background: linear-gradient(135deg, #f5a623 0%, #e08800 100%);
-            padding: 40px 24px;
-            text-align: center;
+            padding: 40px 24px; text-align: center;
         }
-        .bottom-cta h2 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
-        .bottom-cta p { font-size: 14px; opacity: 0.85; margin-bottom: 24px; }
+        .bottom-cta h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+        .bottom-cta p { font-size: 14px; opacity: 0.88; margin-bottom: 22px; }
         .bottom-cta .btn {
             display: inline-block;
-            background: #0f0f1a;
-            color: #f5a623;
+            background: #0f0f1a; color: #f5a623;
             padding: 14px 36px; border-radius: 14px;
             font-size: 16px; font-weight: 700;
+            transition: transform 0.15s;
         }
+        .bottom-cta .btn:active { transform: scale(0.96); }
 
-        /* Footer */
-        .footer {
-            background: #080810;
-            padding: 24px;
-            text-align: center;
-            color: rgba(255,255,255,0.4);
-            font-size: 12px;
-        }
-        .footer a { color: rgba(255,255,255,0.4); margin: 0 8px; }
+        /* ── Footer ── */
+        .footer { background: #080810; padding: 24px; text-align: center; color: rgba(255,255,255,0.35); font-size: 12px; }
+        .footer a { color: rgba(255,255,255,0.35); margin: 0 8px; }
+        .footer a:hover { color: #f5a623; }
 
-        /* Modal */
+        /* ── Auth Modal ── */
         .modal-overlay {
             position: fixed; inset: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.75);
             z-index: 500;
             display: flex; align-items: flex-end;
             opacity: 0; pointer-events: none;
@@ -211,58 +287,123 @@
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 24px 24px 0 0;
             width: 100%; max-width: 480px; margin: 0 auto;
-            padding: 28px 24px 48px;
+            padding: 24px 22px 48px;
             transform: translateY(100%);
             transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+            max-height: 90vh; overflow-y: auto;
         }
         .modal-overlay.open .modal-sheet { transform: translateY(0); }
-        .modal-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 24px; }
-        .modal-tabs { display: flex; border-radius: 12px; background: rgba(255,255,255,0.06); padding: 4px; margin-bottom: 24px; }
-        .modal-tab {
-            flex: 1; padding: 10px; border-radius: 10px;
-            text-align: center; font-size: 14px; font-weight: 600;
-            color: rgba(255,255,255,0.4); transition: all 0.2s;
+        .modal-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 22px; }
+        .modal-tabs {
+            display: flex; border-radius: 12px;
+            background: rgba(255,255,255,0.07); padding: 4px;
+            margin-bottom: 22px;
         }
-        .modal-tab.active { background: rgba(245,166,35,0.9); color: #fff; }
-        .field-group { margin-bottom: 14px; }
+        .modal-tab {
+            flex: 1; padding: 10px; border-radius: 9px;
+            text-align: center; font-size: 14px; font-weight: 600;
+            color: rgba(255,255,255,0.4); transition: all 0.2s; cursor: pointer;
+        }
+        .modal-tab.active { background: linear-gradient(135deg,#f5a623,#e08800); color: #fff; }
+        .field-group { margin-bottom: 14px; position: relative; }
         .field-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
         .field-input {
             width: 100%; padding: 13px 16px;
-            background: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.07);
             border: 1.5px solid rgba(255,255,255,0.1);
             border-radius: 12px;
             color: #fff; font-size: 15px; font-family: inherit;
+            transition: border-color 0.2s;
         }
         .field-input:focus { border-color: #f5a623; outline: none; }
         .field-input::placeholder { color: rgba(255,255,255,0.3); }
+        .field-input.valid   { border-color: #2ed573; }
+        .field-input.invalid { border-color: #ff4757; }
+
+        /* Password toggle */
+        .pw-wrap { position: relative; }
+        .pw-wrap .field-input { padding-right: 44px; }
+        .pw-toggle {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: rgba(255,255,255,0.4);
+            cursor: pointer; font-size: 16px; padding: 4px;
+        }
+
+        /* Validation hint */
+        .field-hint {
+            font-size: 11px; margin-top: 4px;
+            display: none;
+        }
+        .field-hint.ok  { color: #2ed573; display: block; }
+        .field-hint.err { color: #ff4757; display: block; }
+
         .submit-btn {
             width: 100%; padding: 15px;
             background: linear-gradient(135deg, #f5a623, #e08800);
             color: #fff; border-radius: 14px;
-            font-size: 16px; font-weight: 700;
-            margin-top: 6px;
+            font-size: 16px; font-weight: 700; margin-top: 6px;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 6px 20px rgba(245,166,35,0.35);
         }
+        .submit-btn:active { transform: scale(0.97); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .modal-footer { text-align: center; margin-top: 14px; font-size: 13px; color: rgba(255,255,255,0.4); }
         .modal-footer a { color: #f5a623; }
-        .modal-error { background: rgba(255,71,87,0.15); border: 1px solid rgba(255,71,87,0.3); color: #ff4757; padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 14px; display: none; }
+        .modal-error {
+            background: rgba(255,71,87,0.15);
+            border: 1px solid rgba(255,71,87,0.3);
+            color: #ff4757;
+            padding: 10px 14px; border-radius: 10px;
+            font-size: 13px; margin-bottom: 14px; display: none;
+        }
+        .bonus-banner {
+            background: rgba(46,213,115,0.12);
+            border: 1px solid rgba(46,213,115,0.25);
+            border-radius: 10px; padding: 10px 14px;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; color: rgba(255,255,255,0.8);
+            margin-bottom: 16px;
+        }
+        .bonus-banner strong { color: #2ed573; }
 
-        /* Toast */
+        /* ── Toast ── */
         .toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.85); color: #fff;
-            padding: 10px 24px; border-radius: 30px;
+            background: rgba(15,15,26,0.92); color: #fff;
+            padding: 10px 22px; border-radius: 30px;
             font-size: 14px; z-index: 9999;
             opacity: 0; pointer-events: none;
             transition: opacity 0.3s; white-space: nowrap;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
         .toast.show { opacity: 1; }
+
+        /* ── Dark mode toggle ── */
+        .dark-toggle {
+            position: fixed; bottom: 20px; right: 20px; z-index: 300;
+            width: 42px; height: 42px; border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff; font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+        .dark-toggle:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
+<!-- Confetti container (injected by JS) -->
+<div id="confetti-container"></div>
+<div id="balance-delta"></div>
+
 <!-- Hero -->
 <div class="hero">
-    <nav class="nav">
+    <div class="hero-bg-glow" id="particlesBg"></div>
+
+    <nav class="nav anim-fade-in">
         <div class="nav-logo">
             <div class="nav-logo-icon">🎮</div>
             <span>51<em>Game</em></span>
@@ -274,73 +415,129 @@
     </nav>
 
     <div class="hero-content">
-        <div class="hero-badge">🔴 Live Games Running Now</div>
-        <h1 class="hero-title">Win Big<br>Every Round</h1>
-        <p class="hero-subtitle">Bet on colors, numbers & sizes. Real-time draws every 30 seconds. Up to 9× payout.</p>
-        <div class="hero-cta">
-            <button class="cta-primary" id="openRegisterMain">🚀 Start Playing Free</button>
-            <button class="cta-secondary" id="openLoginMain">Already have an account?</button>
+        <div class="live-badge anim-fade-up delay-1">
+            <span class="live-dot"></span>
+            <span id="livePlayerBadge">LIVE — 12,847 players online</span>
+        </div>
+        <h1 class="hero-title anim-fade-up delay-2">Win Big<br>Every Round</h1>
+        <p class="hero-subtitle anim-fade-up delay-3">Bet on colors, numbers & sizes. Real-time draws every 30 seconds. Up to <strong>9× payout</strong>.</p>
+        <div class="hero-cta anim-fade-up delay-4">
+            <button class="cta-primary" id="openRegisterMain">🚀 Start Playing — Get ₹1,000 Free</button>
+            <button class="cta-secondary" id="openLoginMain">Already have an account? Login</button>
+        </div>
+
+        <!-- Recent results ticker -->
+        <div class="results-ticker anim-fade-up delay-5">
+            <div class="ticker-label">Last 8 results</div>
+            <div class="ticker-nums" id="tickerNums"></div>
         </div>
     </div>
 
-    <div class="modes-preview">
-        <div class="mode-chip"><div class="time">30s</div><div class="label">Win Go</div></div>
-        <div class="mode-chip"><div class="time">1Min</div><div class="label">Win Go</div></div>
-        <div class="mode-chip"><div class="time">3Min</div><div class="label">Win Go</div></div>
-        <div class="mode-chip"><div class="time">5Min</div><div class="label">Win Go</div></div>
+    <!-- Game modes -->
+    <div class="modes-preview anim-fade-up delay-6">
+        <div class="mode-chip">
+            <div class="time">30s</div>
+            <div class="label">Win Go</div>
+            <div class="odds">Up to 9×</div>
+        </div>
+        <div class="mode-chip">
+            <div class="time">1Min</div>
+            <div class="label">Win Go</div>
+            <div class="odds">Up to 9×</div>
+        </div>
+        <div class="mode-chip">
+            <div class="time">3Min</div>
+            <div class="label">Win Go</div>
+            <div class="odds">Up to 9×</div>
+        </div>
+        <div class="mode-chip">
+            <div class="time">5Min</div>
+            <div class="label">Win Go</div>
+            <div class="odds">Up to 9×</div>
+        </div>
     </div>
-    <div style="height:40px"></div>
+</div>
+
+<!-- Marquee recent big wins -->
+<div class="wins-marquee">
+    <div class="wins-marquee-inner" id="marqueeInner"></div>
+</div>
+
+<!-- Live player count -->
+<div class="live-players">
+    <span class="lp-dot"></span>
+    <span class="lp-text"><span class="lp-count" id="liveCount">12,847</span> players are playing right now</span>
 </div>
 
 <!-- Stats -->
 <div class="stats-strip">
-    <div class="stat"><div class="stat-val">50K+</div><div class="stat-lbl">Active Players</div></div>
-    <div class="stat"><div class="stat-val">₹2Cr+</div><div class="stat-lbl">Paid Out</div></div>
-    <div class="stat"><div class="stat-val">9×</div><div class="stat-lbl">Max Payout</div></div>
-    <div class="stat"><div class="stat-val">24/7</div><div class="stat-lbl">Live Games</div></div>
+    <div class="stat reveal">
+        <div class="stat-val" id="statPlayers">0</div>
+        <div class="stat-lbl">Active Players</div>
+    </div>
+    <div class="stat reveal delay-1">
+        <div class="stat-val" id="statPaid">₹0</div>
+        <div class="stat-lbl">Paid Out</div>
+    </div>
+    <div class="stat reveal delay-2">
+        <div class="stat-val">9×</div>
+        <div class="stat-lbl">Max Payout</div>
+    </div>
+    <div class="stat reveal delay-3">
+        <div class="stat-val">24/7</div>
+        <div class="stat-lbl">Live Games</div>
+    </div>
 </div>
 
 <!-- Features -->
 <div class="section">
-    <h2 class="section-title">Why <span>WinGo?</span></h2>
+    <h2 class="section-title reveal">Why <span>WinGo?</span></h2>
     <div class="features-grid">
-        <div class="feature-card">
+        <div class="feature-card reveal delay-1">
             <div class="feature-icon">⚡</div>
             <div class="feature-title">Instant Results</div>
-            <div class="feature-desc">Draws every 30 seconds. No waiting around.</div>
+            <div class="feature-desc">Draws every 30 seconds. No waiting.</div>
         </div>
-        <div class="feature-card">
+        <div class="feature-card reveal delay-2">
             <div class="feature-icon">💰</div>
             <div class="feature-title">Up to 9× Win</div>
-            <div class="feature-desc">Exact number match pays out 9× your bet.</div>
+            <div class="feature-desc">Exact number match pays 9× your bet.</div>
         </div>
-        <div class="feature-card">
+        <div class="feature-card reveal delay-3">
             <div class="feature-icon">🎨</div>
             <div class="feature-title">Color Bets</div>
-            <div class="feature-desc">Red, Green, Violet — 3 ways to win every round.</div>
+            <div class="feature-desc">Red, Green, Violet — 3 ways every round.</div>
         </div>
-        <div class="feature-card">
+        <div class="feature-card reveal delay-4">
             <div class="feature-icon">📱</div>
             <div class="feature-title">Mobile First</div>
-            <div class="feature-desc">Designed for smooth play on any device.</div>
+            <div class="feature-desc">Smooth play on any device, always.</div>
         </div>
-        <div class="feature-card">
+        <div class="feature-card reveal delay-5">
             <div class="feature-icon">🔒</div>
-            <div class="feature-title">Secure</div>
-            <div class="feature-desc">Fair, transparent random number generation.</div>
+            <div class="feature-title">Fair & Secure</div>
+            <div class="feature-desc">Cryptographic random number generation.</div>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">🎮</div>
+        <div class="feature-card reveal delay-6">
+            <div class="feature-icon">🎯</div>
             <div class="feature-title">4 Game Modes</div>
-            <div class="feature-desc">30s, 1min, 3min, 5min to fit your style.</div>
+            <div class="feature-desc">30s, 1min, 3min, 5min — your choice.</div>
         </div>
     </div>
 </div>
 
-<!-- Payouts -->
+<!-- Live activity feed -->
 <div class="section" style="padding-top:0">
-    <h2 class="section-title">Payout <span>Rules</span></h2>
-    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden">
+    <h2 class="section-title reveal">Live <span>Activity</span></h2>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:12px 16px">
+        <div class="live-feed" id="liveFeedHome"></div>
+    </div>
+</div>
+
+<!-- Payout Rules -->
+<div class="section" style="padding-top:0">
+    <h2 class="section-title reveal">Payout <span>Rules</span></h2>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden" class="reveal">
         <table class="payout-table">
             <thead><tr><th>Bet</th><th>Condition</th><th>Payout</th></tr></thead>
             <tbody>
@@ -348,18 +545,19 @@
                 <tr><td><span class="color-dot" style="background:#2ed573"></span>Green</td><td>1, 3, 7, 9</td><td><strong style="color:#f5a623">2×</strong></td></tr>
                 <tr><td><span class="color-dot" style="background:#ff4757"></span>Red</td><td>2, 4, 6, 8</td><td><strong style="color:#f5a623">2×</strong></td></tr>
                 <tr><td><span class="color-dot" style="background:#a55eea"></span>Violet</td><td>0 or 5</td><td><strong style="color:#f5a623">4.5×</strong></td></tr>
+                <tr><td>Green on 5</td><td>Special</td><td><strong style="color:#f5a623">1.5×</strong></td></tr>
                 <tr><td>Big / Small</td><td>5–9 / 0–4</td><td><strong style="color:#f5a623">2×</strong></td></tr>
             </tbody>
         </table>
     </div>
-    <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:10px;text-align:center">2% service fee deducted from each bet. Play responsibly.</p>
+    <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px;text-align:center">2% service fee deducted from each bet. Play responsibly. 18+</p>
 </div>
 
 <!-- Bottom CTA -->
-<div class="bottom-cta">
+<div class="bottom-cta reveal">
     <h2>Ready to Win?</h2>
-    <p>Join thousands of players winning daily. Get ₹1,000 welcome bonus on signup.</p>
-    <button class="btn" id="openRegisterBottom">Create Free Account</button>
+    <p>Join thousands of players winning daily. Get <strong>₹1,000 welcome bonus</strong> on signup.</p>
+    <button class="btn" id="openRegisterBottom">Create Free Account →</button>
 </div>
 
 <!-- Footer -->
@@ -370,7 +568,7 @@
         <a href="#">FAQ</a>
         <a href="#">Support</a>
     </p>
-    <p>© 2024 51Game WinGo. Play responsibly. 18+</p>
+    <p>© 2025 51Game WinGo. Play responsibly. 18+</p>
 </div>
 
 <!-- Auth Modal -->
@@ -387,11 +585,14 @@
             <div class="modal-error" id="loginError"></div>
             <div class="field-group">
                 <div class="field-label">Phone / Username</div>
-                <input class="field-input" type="text" id="loginPhone" placeholder="Enter your phone or username">
+                <input class="field-input" type="text" id="loginPhone" placeholder="Enter phone or username" autocomplete="username">
             </div>
             <div class="field-group">
                 <div class="field-label">Password</div>
-                <input class="field-input" type="password" id="loginPassword" placeholder="Enter your password">
+                <div class="pw-wrap">
+                    <input class="field-input" type="password" id="loginPassword" placeholder="Enter password" autocomplete="current-password">
+                    <button class="pw-toggle" onclick="togglePw('loginPassword', this)" type="button">👁</button>
+                </div>
             </div>
             <button class="submit-btn" onclick="doLogin()">Login</button>
             <div class="modal-footer">Don't have an account? <a href="#" onclick="switchTab('register')">Register</a></div>
@@ -399,24 +600,35 @@
 
         <!-- Register Form -->
         <div id="registerForm" style="display:none">
+            <div class="bonus-banner">🎁 <span>Create an account and get <strong>₹1,000 bonus</strong> instantly!</span></div>
             <div class="modal-error" id="registerError"></div>
             <div class="field-group">
                 <div class="field-label">Username</div>
-                <input class="field-input" type="text" id="regUsername" placeholder="Choose a username">
+                <input class="field-input" type="text" id="regUsername" placeholder="Choose a username" oninput="validateField(this, v => v.length >= 3, 'Min 3 characters', 'Looks good!')">
+                <div class="field-hint" id="hintUsername"></div>
             </div>
             <div class="field-group">
                 <div class="field-label">Phone Number</div>
-                <input class="field-input" type="tel" id="regPhone" placeholder="Enter your phone number">
+                <input class="field-input" type="tel" id="regPhone" placeholder="10-digit phone number" oninput="validateField(this, v => /^\d{10}$/.test(v), 'Enter 10-digit number', '✓ Valid')">
+                <div class="field-hint" id="hintPhone"></div>
             </div>
             <div class="field-group">
                 <div class="field-label">Password</div>
-                <input class="field-input" type="password" id="regPassword" placeholder="Create a password (min 6 chars)">
+                <div class="pw-wrap">
+                    <input class="field-input" type="password" id="regPassword" placeholder="Min 6 characters" oninput="validateField(this, v => v.length >= 6, 'Min 6 characters', '✓ Strong')" autocomplete="new-password">
+                    <button class="pw-toggle" onclick="togglePw('regPassword', this)" type="button">👁</button>
+                </div>
+                <div class="field-hint" id="hintPassword"></div>
             </div>
             <div class="field-group">
                 <div class="field-label">Confirm Password</div>
-                <input class="field-input" type="password" id="regConfirm" placeholder="Repeat your password">
+                <div class="pw-wrap">
+                    <input class="field-input" type="password" id="regConfirm" placeholder="Repeat password" oninput="validateConfirm(this)" autocomplete="new-password">
+                    <button class="pw-toggle" onclick="togglePw('regConfirm', this)" type="button">👁</button>
+                </div>
+                <div class="field-hint" id="hintConfirm"></div>
             </div>
-            <button class="submit-btn" onclick="doRegister()">Create Account & Get ₹1,000 Bonus</button>
+            <button class="submit-btn" id="registerBtn" onclick="doRegister()">🎁 Create Account &amp; Claim ₹1,000</button>
             <div class="modal-footer">Already have an account? <a href="#" onclick="switchTab('login')">Login</a></div>
         </div>
     </div>
@@ -424,14 +636,74 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- Dark mode toggle -->
+<button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
+
 <script type="module">
-import { isLoggedIn, login, register, getUser } from './js/user.js';
+import { isLoggedIn, login, register } from './js/user.js';
+import { initAll, initParticles, startLiveFeed, generateFeedItem, countUp, confetti, initReveal } from './js/enhancements.js';
 
-// If already logged in, go to game
-if (isLoggedIn()) {
-    window.location.href = 'index.html';
+// ── Redirect if already logged in ─────────
+if (isLoggedIn()) { window.location.href = 'index.html'; }
+
+// ── Init global enhancements ───────────────
+initAll();
+
+// ── Particles in hero bg ───────────────────
+initParticles(document.getElementById('particlesBg'));
+
+// ── Scroll reveal ─────────────────────────
+initReveal();
+
+// ── Animate stats ─────────────────────────
+window.addEventListener('load', () => {
+    countUp(document.getElementById('statPlayers'), 52480, 1800, '', '+');
+    countUp(document.getElementById('statPaid'), 23500000, 2000, '₹', '');
+});
+
+// ── Live player counter fluctuation ──────
+let liveN = 12847;
+setInterval(() => {
+    liveN += Math.floor(Math.random() * 30) - 10;
+    if (liveN < 10000) liveN = 10000;
+    if (liveN > 20000) liveN = 15000;
+    const fmt = liveN.toLocaleString('en-IN');
+    document.getElementById('liveCount').textContent = fmt;
+    document.getElementById('livePlayerBadge').textContent = `LIVE — ${fmt} players online`;
+}, 3500);
+
+// ── Results ticker ────────────────────────
+const COLORS = {
+    0: 'tn-mixed', 1: 'tn-green', 2: 'tn-red', 3: 'tn-green',
+    4: 'tn-red', 5: 'tn-violet', 6: 'tn-red', 7: 'tn-green',
+    8: 'tn-red', 9: 'tn-green'
+};
+function randomResult() { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % 10; }
+const tickerNums = document.getElementById('tickerNums');
+let ticker = Array.from({length: 8}, randomResult);
+function renderTicker() {
+    tickerNums.innerHTML = ticker.map(n =>
+        `<div class="ticker-num ${COLORS[n]} anim-scale-in">${n}</div>`
+    ).join('');
 }
+renderTicker();
+setInterval(() => { ticker.shift(); ticker.push(randomResult()); renderTicker(); }, 5000);
 
+// ── Marquee wins ──────────────────────────
+const NAMES = ['Raj***','Priya***','Amit***','Pooja***','Suresh***','Neha***','Vikram***','Ananya***'];
+const marqueeInner = document.getElementById('marqueeInner');
+const wins = Array.from({length: 8}, () => {
+    const name = NAMES[Math.floor(Math.random() * NAMES.length)];
+    const amt  = [500,1000,2000,5000,9000,450,900,4500][Math.floor(Math.random() * 8)];
+    return `<span class="win-pill">🏆 ${name} won <span class="w-amt">₹${amt.toLocaleString('en-IN')}</span></span>`;
+});
+// Duplicate for seamless loop
+marqueeInner.innerHTML = wins.join('') + wins.join('');
+
+// ── Live activity feed ────────────────────
+startLiveFeed(document.getElementById('liveFeedHome'));
+
+// ── Modal logic ───────────────────────────
 window.switchTab = function(tab) {
     const isLogin = tab === 'login';
     document.getElementById('tabLogin').classList.toggle('active', isLogin);
@@ -444,67 +716,95 @@ function openModal(tab = 'login') {
     switchTab(tab);
     document.getElementById('authModal').classList.add('open');
 }
-
 function closeModal() {
     document.getElementById('authModal').classList.remove('open');
 }
 
-document.getElementById('authModal').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-});
-
+document.getElementById('authModal').addEventListener('click', e => { if (e.target === document.getElementById('authModal')) closeModal(); });
 document.getElementById('openLogin').onclick = () => openModal('login');
 document.getElementById('openRegister').onclick = () => openModal('register');
 document.getElementById('openRegisterMain').onclick = () => openModal('register');
 document.getElementById('openLoginMain').onclick = () => openModal('login');
 document.getElementById('openRegisterBottom').onclick = () => openModal('register');
 
+// ── Toast ──────────────────────────────────
 function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
+    setTimeout(() => t.classList.remove('show'), 2800);
 }
 
+// ── Password visibility toggle ────────────
+window.togglePw = function(id, btn) {
+    const inp = document.getElementById(id);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+};
+
+// ── Real-time validation ──────────────────
+window.validateField = function(inp, test, errMsg, okMsg) {
+    const hintId = 'hint' + inp.id.charAt(0).toUpperCase() + inp.id.slice(1).replace('reg','').replace('R','r');
+    const hint = document.getElementById('hint' + inp.id.replace('reg','').charAt(0).toUpperCase() + inp.id.replace('reg','').slice(1));
+    if (!inp.value) { inp.classList.remove('valid','invalid'); if (hint) hint.className = 'field-hint'; return; }
+    const ok = test(inp.value);
+    inp.classList.toggle('valid', ok);
+    inp.classList.toggle('invalid', !ok);
+    if (hint) { hint.textContent = ok ? okMsg : errMsg; hint.className = 'field-hint ' + (ok ? 'ok' : 'err'); }
+};
+
+window.validateConfirm = function(inp) {
+    const pw = document.getElementById('regPassword').value;
+    const hint = document.getElementById('hintConfirm');
+    const ok = inp.value === pw && pw.length > 0;
+    inp.classList.toggle('valid', ok);
+    inp.classList.toggle('invalid', !ok && inp.value.length > 0);
+    if (hint) { hint.textContent = ok ? '✓ Passwords match' : 'Passwords do not match'; hint.className = 'field-hint ' + (ok ? 'ok' : (inp.value.length > 0 ? 'err' : '')); }
+};
+
+// ── Login ─────────────────────────────────
 window.doLogin = function() {
     const phone = document.getElementById('loginPhone').value.trim();
-    const pass = document.getElementById('loginPassword').value;
-    const err = document.getElementById('loginError');
+    const pass  = document.getElementById('loginPassword').value;
+    const err   = document.getElementById('loginError');
     err.style.display = 'none';
-
     if (!phone || !pass) { err.textContent = 'Please fill in all fields.'; err.style.display = ''; return; }
-
-    // Check stored users
     const users = JSON.parse(localStorage.getItem('wingo_users') || '[]');
     const found = users.find(u => (u.username === phone || u.phone === phone) && u.password === pass);
     if (!found) { err.textContent = 'Incorrect phone/username or password.'; err.style.display = ''; return; }
-
     login(found);
-    showToast('Welcome back, ' + found.username + '!');
+    showToast('👋 Welcome back, ' + found.username + '!');
     setTimeout(() => { window.location.href = 'index.html'; }, 800);
 };
 
+// ── Register ──────────────────────────────
 window.doRegister = function() {
     const username = document.getElementById('regUsername').value.trim();
-    const phone = document.getElementById('regPhone').value.trim();
-    const pass = document.getElementById('regPassword').value;
-    const confirm = document.getElementById('regConfirm').value;
-    const err = document.getElementById('registerError');
+    const phone    = document.getElementById('regPhone').value.trim();
+    const pass     = document.getElementById('regPassword').value;
+    const confirm  = document.getElementById('regConfirm').value;
+    const err      = document.getElementById('registerError');
     err.style.display = 'none';
-
     if (!username || !phone || !pass) { err.textContent = 'Please fill in all fields.'; err.style.display = ''; return; }
-    if (pass.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.style.display = ''; return; }
-    if (pass !== confirm) { err.textContent = 'Passwords do not match.'; err.style.display = ''; return; }
-
+    if (username.length < 3)  { err.textContent = 'Username must be at least 3 characters.'; err.style.display = ''; return; }
+    if (!/^\d{10}$/.test(phone)) { err.textContent = 'Enter a valid 10-digit phone number.'; err.style.display = ''; return; }
+    if (pass.length < 6)   { err.textContent = 'Password must be at least 6 characters.'; err.style.display = ''; return; }
+    if (pass !== confirm)  { err.textContent = 'Passwords do not match.'; err.style.display = ''; return; }
     const users = JSON.parse(localStorage.getItem('wingo_users') || '[]');
     if (users.find(u => u.username === username)) { err.textContent = 'Username already taken.'; err.style.display = ''; return; }
     if (users.find(u => u.phone === phone)) { err.textContent = 'Phone number already registered.'; err.style.display = ''; return; }
-
     const user = register({ username, phone });
     users.push({ username, phone, password: pass, uid: user.uid, createdAt: user.createdAt });
     localStorage.setItem('wingo_users', JSON.stringify(users));
-
+    confetti(70);
     showToast('🎉 Account created! ₹1,000 bonus added!');
-    setTimeout(() => { window.location.href = 'index.html'; }, 900);
+    setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+};
+
+// ── Dark mode toggle ─────────────────────
+import { toggleDarkMode } from './js/enhancements.js';
+document.getElementById('darkToggle').onclick = () => {
+    const isDark = toggleDarkMode();
+    document.getElementById('darkToggle').textContent = isDark ? '☀️' : '🌙';
 };
 </script>
 </body>

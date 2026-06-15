@@ -13,10 +13,70 @@
     <link rel="stylesheet" href="./css/index.css" />
     <link rel="stylesheet" href="./css/page-home.css" />
     <link rel="stylesheet" href="./css/app.css" />
+    <link rel="stylesheet" href="./css/animations.css" />
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="theme-color" content="#f5a623" />
     <style>
-        /* Tab bar spacing for game page */
         #app { padding-bottom: 64px; }
         .Wallet__C-balance-l3 > div { cursor: pointer; }
+
+        /* ── Hot numbers panel ── */
+        #hotNumsPanel {
+            background: rgba(255,255,255,0.06);
+            border-radius: 12px; padding: 10px 14px;
+            margin: 0 10px 10px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        #hotNumsPanel .hot-label {
+            font-size: 11px; color: rgba(255,255,255,0.55);
+            font-weight: 600; flex-shrink: 0;
+        }
+
+        /* ── My bet history panel ── */
+        #myBetHistory {
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px; padding: 10px 14px;
+            margin: 0 10px 10px;
+        }
+        .my-bet-title {
+            font-size: 11px; color: rgba(255,255,255,0.5);
+            font-weight: 600; margin-bottom: 8px;
+        }
+        .my-bet-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+            font-size: 11px;
+        }
+        .my-bet-item:last-child { border-bottom: none; }
+        .my-bet-type { font-weight: 700; flex-shrink: 0; width: 48px; }
+        .my-bet-result { flex: 1; color: rgba(255,255,255,0.5); }
+        .my-bet-amount { font-weight: 700; }
+        .my-bet-amount.won  { color: #2ed573; }
+        .my-bet-amount.lost { color: #ff4757; }
+
+        /* ── Live activity feed on game page ── */
+        #gameLiveFeed {
+            margin: 0 10px 8px;
+            overflow: hidden;
+        }
+
+        /* ── Streak indicator ── */
+        #streakIndicator {
+            display: none;
+            margin: 0 10px 8px;
+        }
+
+        /* ── Win dialog improved ── */
+        .WinningTip__C.is-win .WinningTip__C-body-l1 {
+            background: linear-gradient(135deg,#2ed573,#26b85b);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .WinningTip__C.is-loss .WinningTip__C-body-l1 {
+            background: linear-gradient(135deg,#ff4757,#d63031);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .WinningTip__C.is-win  { animation: scaleIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+        .WinningTip__C.is-loss { animation: fadeIn 0.3s ease both; }
     </style>
 </head>
 
@@ -5214,6 +5274,27 @@
         </div>
         <!----><!---->
     </div>
+<!-- Hot Numbers Panel -->
+<div id="hotNumsPanel" style="display:none">
+    <span class="hot-label">🔥 Hot:</span>
+    <div class="hot-nums" id="hotNumsList"></div>
+    <span style="flex:1"></span>
+    <span id="streakIndicatorInline" style="font-size:11px;display:none"></span>
+</div>
+
+<!-- My Bet History Panel -->
+<div id="myBetHistory" style="display:none">
+    <div class="my-bet-title">📋 My Recent Bets</div>
+    <div id="myBetItems"></div>
+</div>
+
+<!-- Live Activity Feed on Game Page -->
+<div id="gameLiveFeed"></div>
+
+<!-- Confetti + delta overlay (global) -->
+<div id="confetti-container"></div>
+<div id="balance-delta"></div>
+
 <!-- Bottom Tab Bar -->
 <nav class="tab-bar">
     <a class="tab-item" href="home.html"><span class="tab-icon">🏠</span><span>Home</span></a>
@@ -5224,31 +5305,131 @@
 
 <script type="module" src="js/main.js"></script>
 <script type="module">
-import { requireAuth, getBalance, setBalance, formatCurrency } from './js/user.js';
+import { requireAuth, getBalance, setBalance, formatCurrency, getTransactions } from './js/user.js';
+import { initAll, confetti, showBalanceDelta, startLiveFeed, getStreak, initDarkMode } from './js/enhancements.js';
 
-// Auth guard — redirect to landing if not logged in
+// Auth guard
 if (!requireAuth('home.html')) throw new Error('redirect');
 
-// Sync balance display with user state
-const balEl = document.getElementById('gameBalance');
+// Global enhancements
+initAll();
+initDarkMode();
+
+// Balance sync
+const balEl   = document.getElementById('gameBalance');
 const moneyEl = document.querySelector('.Wallet__C-balance-l1 > div');
 
 function syncBalance() {
     const bal = getBalance();
-    const formatted = formatCurrency(bal);
-    if (balEl) balEl.textContent = formatted;
-    if (moneyEl && moneyEl !== balEl) moneyEl.textContent = formatted;
+    const fmt = formatCurrency(bal);
+    if (balEl) balEl.textContent = fmt;
+    if (moneyEl && moneyEl !== balEl) moneyEl.textContent = fmt;
 }
-
 syncBalance();
 
-// Watch for balance changes made by the game's bet logic
+// Watch for balance changes from game bet logic
+let prevBalance = getBalance();
 const observer = new MutationObserver(() => {
     if (moneyEl) {
         const val = parseFloat((moneyEl.textContent || '').replace(/[₹,]/g, ''));
-        if (!isNaN(val)) setBalance(val);
+        if (!isNaN(val)) {
+            const delta = val - prevBalance;
+            if (Math.abs(delta) > 0.01) {
+                showBalanceDelta(Math.abs(delta), delta > 0);
+                if (delta > 0) triggerWinEffects(delta);
+                prevBalance = val;
+            }
+            setBalance(val);
+        }
     }
 });
 if (moneyEl) observer.observe(moneyEl, { characterData: true, childList: true, subtree: true });
+
+// Confetti & win dialog enhancement
+function triggerWinEffects(amount) {
+    confetti(amount > 500 ? 80 : 50);
+    // Add is-win class to win dialog
+    const dialog = document.querySelector('.WinningTip__C');
+    if (dialog) {
+        dialog.classList.remove('is-loss');
+        dialog.classList.add('is-win');
+    }
+}
+
+// Hook into game result to show loss state
+const winDialog = document.querySelector('.WinningTip__C');
+if (winDialog) {
+    new MutationObserver(() => {
+        const bonusEl = winDialog.querySelector('.bonus');
+        if (bonusEl) {
+            const bonusVal = parseFloat((bonusEl.textContent || '').replace(/[₹,]/g, ''));
+            if (!isNaN(bonusVal) && bonusVal === 0) {
+                winDialog.classList.remove('is-win');
+                winDialog.classList.add('is-loss');
+            }
+        }
+    }).observe(winDialog, { childList: true, subtree: true });
+}
+
+// ── Hot numbers tracker ──────────────────
+const HOT_COLORS = {
+    0:'mixed-n', 1:'green-n', 2:'red-n', 3:'green-n',
+    4:'red-n', 5:'mixed-n', 6:'red-n', 7:'green-n', 8:'red-n', 9:'green-n'
+};
+function updateHotNumbers() {
+    const txs = getTransactions();
+    const map = {};
+    txs.slice(0, 30).forEach(tx => {
+        if (tx.result !== undefined) { map[tx.result] = (map[tx.result] || 0) + 1; }
+    });
+    const hot = Object.entries(map).sort((a,b) => b[1]-a[1]).slice(0, 4).map(([n]) => parseInt(n));
+    if (hot.length < 1) return;
+    const panel = document.getElementById('hotNumsPanel');
+    const list  = document.getElementById('hotNumsList');
+    panel.style.display = 'flex';
+    list.innerHTML = hot.map(n =>
+        `<div class="hot-num ${HOT_COLORS[n]||'red-n'}" style="width:26px;height:26px;font-size:11px">${n}</div>`
+    ).join('');
+}
+updateHotNumbers();
+setInterval(updateHotNumbers, 8000);
+
+// ── My bet history panel ──────────────────
+function updateBetHistory() {
+    const txs = getTransactions();
+    const bets = txs.filter(t => t.type === 'bet' || t.type === 'win').slice(0, 5);
+    const panel = document.getElementById('myBetHistory');
+    const items = document.getElementById('myBetItems');
+    if (!bets.length) return;
+    panel.style.display = '';
+    items.innerHTML = bets.map(tx => {
+        const won = tx.type === 'win';
+        const sign = won ? '+' : '-';
+        const cls  = won ? 'won' : 'lost';
+        return `<div class="my-bet-item">
+            <div class="my-bet-type">${tx.note ? tx.note.replace('Bet on ','') : '—'}</div>
+            <div class="my-bet-result">${new Date(tx.date).toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'})}</div>
+            <div class="my-bet-amount ${cls}">${sign}${formatCurrency(Math.abs(tx.amount))}</div>
+        </div>`;
+    }).join('');
+}
+updateBetHistory();
+setInterval(updateBetHistory, 5000);
+
+// ── Streak display ────────────────────────
+function updateStreak() {
+    const txs = getTransactions();
+    const streak = getStreak(txs);
+    const el = document.getElementById('streakIndicatorInline');
+    if (!el || streak.count < 2) return;
+    el.style.display = '';
+    el.innerHTML = `<span class="streak-badge"><span class="streak-flame">🔥</span> ${streak.count} ${streak.type} streak</span>`;
+}
+updateStreak();
+setInterval(updateStreak, 6000);
+
+// ── Live activity feed ────────────────────
+startLiveFeed(document.getElementById('gameLiveFeed'));
+
 </script>
 </html>

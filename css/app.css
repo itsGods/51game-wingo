@@ -347,3 +347,116 @@ input { outline: none; font-family: inherit; }
     flex-shrink: 0;
 }
 .page-header h1 { font-size: 17px; font-weight: 700; }
+
+/* ══════════════════════════════════════
+   ENHANCEMENT ADDITIONS — v2.0
+   ══════════════════════════════════════ */
+
+/* ── Improved scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 2px; }
+
+/* ── Button ripple ── */
+.btn, .chip, button {
+    position: relative; overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Card entrance animation ── */
+.card { animation: fadeInUp 0.4s ease both; }
+
+/* ── Tab bar indicator — active bounce ── */
+.tab-item.active .tab-icon { animation: pulseBig 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+/* ── Improved chip ── */
+.chip:hover { border-color: var(--primary); color: var(--primary-dark); }
+.chip:active { transform: scale(0.95); }
+
+/* ── Better button transitions ── */
+.btn:active { transform: scale(0.97); }
+.btn-danger:active { transform: scale(0.97); }
+
+/* ── Field focus glow ── */
+.field-input:focus {
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.15);
+}
+
+/* ── List item hover ── */
+.list-item { cursor: pointer; transition: background 0.15s; }
+.list-item:hover { background: rgba(245,166,35,0.04); }
+.list-item:active { background: rgba(245,166,35,0.08); }
+
+/* ── Card header improved ── */
+.card-header { color: var(--text); }
+
+/* ── Avatar improved ── */
+.avatar { transition: transform 0.2s; }
+.avatar:active { transform: scale(0.95); }
+
+/* ── Improved modal ── */
+.modal-sheet, .edit-sheet {
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.2);
+}
+
+/* ── Balance display animation on wallet ── */
+.balance-amount { transition: color 0.3s; }
+
+/* ── Section title improved ── */
+.section-title {
+    display: flex; align-items: center; gap: 6px;
+}
+
+/* ── Improved empty states ── */
+.tx-row { transition: background 0.15s; }
+.tx-row:hover { background: rgba(245,166,35,0.03); }
+
+/* ── Status badge ── */
+.status-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+}
+.status-active   { background: rgba(46,213,115,0.12); color: #27ae60; }
+.status-pending  { background: rgba(245,166,35,0.12); color: #e08800; }
+.status-inactive { background: rgba(108,108,112,0.12); color: #6c6c70; }
+
+/* ── Page transitions ── */
+.page-content { animation: fadeInUp 0.35s ease both; }
+.page-header { animation: fadeInDown 0.35s ease both; }
+
+/* ── Profile hero polish ── */
+.profile-hero { box-shadow: 0 4px 20px rgba(245,166,35,0.25); }
+
+/* ── Sticky safe area ── */
+.page-header {
+    padding-top: calc(16px + env(safe-area-inset-top));
+}
+
+/* ── Dark mode refinements ── */
+[data-theme="dark"] .balance-card {
+    box-shadow: 0 8px 30px rgba(245,166,35,0.2);
+}
+[data-theme="dark"] .card {
+    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+[data-theme="dark"] .tab-bar {
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+}
+[data-theme="dark"] .field-input:focus {
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.2);
+    background: rgba(255,255,255,0.05);
+}
+[data-theme="dark"] .list-item:hover { background: rgba(255,255,255,0.04); }
+[data-theme="dark"] .list-item:active { background: rgba(255,255,255,0.08); }
+[data-theme="dark"] .page-content { background: var(--bg); }
+[data-theme="dark"] .profile-hero {
+    background: linear-gradient(135deg,#2a1a00,#1a0d00);
+}
+[data-theme="dark"] .stat-cell { border-color: rgba(255,255,255,0.08); }
+[data-theme="dark"] .tx-row:hover { background: rgba(255,255,255,0.03); }
+[data-theme="dark"] input { color-scheme: dark; }
+
+/* ── Smooth page-level scroll ── */
+html { scroll-behavior: smooth; }
+body { overscroll-behavior-y: contain; }
