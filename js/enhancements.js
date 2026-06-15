@@ -255,4 +255,122 @@ export function initAll() {
     initRipple();
     initReveal();
     initDarkMode();
+    initScrollToTop();
+    initTopBar();
+}
+
+// ── [19] Top progress bar ─────────────────
+let _topBarTimer;
+export function initTopBar() {
+    let bar = document.getElementById('page-topbar');
+    if (!bar) { bar = document.createElement('div'); bar.id = 'page-topbar'; document.body.prepend(bar); }
+}
+export function topBarStart() {
+    const bar = document.getElementById('page-topbar');
+    if (!bar) return;
+    clearTimeout(_topBarTimer);
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    bar.classList.add('active');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        bar.style.transition = 'width 2s ease';
+        bar.style.width = '75%';
+    }));
+}
+export function topBarFinish() {
+    const bar = document.getElementById('page-topbar');
+    if (!bar) return;
+    bar.style.transition = 'width 0.3s ease, opacity 0.5s ease 0.35s';
+    bar.style.width = '100%';
+    _topBarTimer = setTimeout(() => { bar.classList.remove('active'); bar.style.width = '0%'; }, 900);
+}
+
+// ── [20] Scroll-to-top FAB ───────────────
+export function initScrollToTop() {
+    if (document.getElementById('scroll-top-fab')) return;
+    const fab = document.createElement('button');
+    fab.id = 'scroll-top-fab';
+    fab.title = 'Back to top';
+    fab.innerHTML = '↑';
+    document.body.appendChild(fab);
+    fab.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    const scroller = document.querySelector('.page-content') || window;
+    const onScroll = () => fab.classList.toggle('visible', (scroller === window ? scroller.scrollY : scroller.scrollTop) > 300);
+    (scroller === window ? window : scroller).addEventListener('scroll', onScroll, { passive: true });
+}
+
+// ── [21] Button loading state ─────────────
+export function setButtonLoading(btn, on) {
+    if (on) {
+        btn._savedText = btn.innerHTML;
+        btn.classList.add('btn-loading');
+        btn.disabled = true;
+    } else {
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
+        if (btn._savedText !== undefined) btn.innerHTML = btn._savedText;
+    }
+}
+
+// ── [22] Haptic feedback ──────────────────
+export function haptic(pattern = [10]) {
+    if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+// ── [23] Swipe-to-close modal ─────────────
+export function initSwipeClose(overlayEl) {
+    if (!overlayEl) return;
+    const sheet = overlayEl.querySelector('.modal-sheet, .edit-sheet, .logout-sheet');
+    if (!sheet) return;
+    let startY = 0, dragging = false;
+    sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; dragging = true; }, { passive: true });
+    sheet.addEventListener('touchmove', e => {
+        if (!dragging) return;
+        const dy = Math.max(0, e.touches[0].clientY - startY);
+        sheet.style.transform = `translateY(${dy}px)`;
+        sheet.style.transition = 'none';
+    }, { passive: true });
+    sheet.addEventListener('touchend', e => {
+        dragging = false;
+        const dy = e.changedTouches[0].clientY - startY;
+        sheet.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1)';
+        if (dy > 90) { overlayEl.classList.remove('open'); sheet.style.transform = ''; }
+        else { sheet.style.transform = ''; }
+    });
+}
+
+// ── [24] Password strength ────────────────
+export function passwordStrength(pw) {
+    let s = 0;
+    if (pw.length >= 6)  s++;
+    if (pw.length >= 10) s++;
+    if (/[A-Z]/.test(pw)) s++;
+    if (/[0-9]/.test(pw)) s++;
+    if (/[^A-Za-z0-9]/.test(pw)) s++;
+    if (s <= 1) return 'weak';
+    if (s <= 3) return 'medium';
+    return 'strong';
+}
+
+// ── [25] Remember last field value ────────
+export function rememberField(storageKey, inputEl) {
+    if (!inputEl) return;
+    const saved = localStorage.getItem('rf_' + storageKey);
+    if (saved) inputEl.value = saved;
+    inputEl.addEventListener('input', () => {
+        if (inputEl.value) localStorage.setItem('rf_' + storageKey, inputEl.value);
+        else localStorage.removeItem('rf_' + storageKey);
+    });
+}
+
+// ── [26] Date label helper ────────────────
+export function dateLabelGroup(dateStr) {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yest  = new Date(today - 86400000);
+    const txDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    if (txDay >= today) return 'Today';
+    if (txDay >= yest)  return 'Yesterday';
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }

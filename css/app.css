@@ -460,3 +460,198 @@ input { outline: none; font-family: inherit; }
 /* ── Smooth page-level scroll ── */
 html { scroll-behavior: smooth; }
 body { overscroll-behavior-y: contain; }
+
+/* ══════════════════════════════════════
+   PROFESSIONAL POLISH — v3.0
+   ══════════════════════════════════════ */
+
+/* [1] Top progress bar */
+#page-topbar {
+    position: fixed; top: 0; left: 0; z-index: 10000;
+    height: 3px; width: 0%;
+    background: linear-gradient(90deg, #f5a623, #ffd57e, #f5a623);
+    border-radius: 0 2px 2px 0;
+    pointer-events: none; opacity: 0;
+    box-shadow: 0 0 8px rgba(245,166,35,0.7);
+    transition: width 2s ease, opacity 0.4s;
+}
+#page-topbar.active { opacity: 1; }
+
+/* [2] Toast variants */
+.app-toast { display: flex; align-items: center; gap: 8px; max-width: calc(100vw - 40px); }
+.app-toast.toast-success { background: rgba(39,174,96,0.92); }
+.app-toast.toast-error   { background: rgba(231,76,60,0.92);  }
+.app-toast.toast-info    { background: rgba(79,70,229,0.92);  }
+.app-toast.toast-warning { background: rgba(245,166,35,0.95); color: #1a1a1a; }
+
+/* [3] Skeleton shimmer */
+@keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+.skeleton {
+    background: linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+    border-radius: 6px;
+}
+[data-theme="dark"] .skeleton {
+    background: linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.05) 75%);
+    background-size: 800px 100%;
+}
+
+/* [4] Scroll-to-top FAB */
+#scroll-top-fab {
+    position: fixed; bottom: calc(80px + env(safe-area-inset-bottom));
+    right: 16px; z-index: 900;
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, #f5a623, #e08800);
+    border-radius: 50%; border: none; cursor: pointer;
+    color: #fff; font-size: 20px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(245,166,35,0.4);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    transform: translateY(12px);
+    -webkit-tap-highlight-color: transparent;
+}
+#scroll-top-fab.visible { opacity: 1; pointer-events: all; transform: translateY(0); }
+
+/* [5] Button loading spinner */
+.btn-loading { position: relative; pointer-events: none; opacity: 0.8; }
+.btn-loading .btn-text { opacity: 0; }
+.btn-loading::after {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 18px; height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.65s linear infinite;
+}
+@keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+.submit-btn.btn-loading, .btn.btn-loading { color: transparent; }
+
+/* [6] Transaction date group header */
+.tx-group-header {
+    font-size: 11px; font-weight: 700; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 12px 0 4px; border-bottom: 1px solid var(--border);
+    margin-bottom: 2px;
+}
+
+/* [7] Password strength bar */
+.pw-strength { height: 3px; border-radius: 2px; background: var(--border); margin-top: 5px; overflow: hidden; }
+.pw-strength-fill { height: 100%; border-radius: 2px; transition: width 0.35s, background 0.35s; width: 0%; }
+.pw-str-weak   { background: #ff4757; width: 33%; }
+.pw-str-medium { background: #f5a623; width: 66%; }
+.pw-str-strong { background: #2ed573; width: 100%; }
+
+/* [8] Search box for transactions */
+.tx-search-wrap { position: relative; padding: 4px 16px 8px; }
+.tx-search-icon { position: absolute; left: 28px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; z-index: 1; }
+.tx-search {
+    width: 100%; padding: 9px 12px 9px 34px;
+    border: 1.5px solid var(--border); border-radius: 10px;
+    font-size: 13px; background: var(--bg); color: var(--text);
+    outline: none; transition: border-color 0.2s;
+}
+.tx-search:focus { border-color: var(--primary); }
+
+/* [9] Achievement locked state */
+.achievement.locked { opacity: 0.42; filter: grayscale(0.75); }
+.achievement { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.achievement:last-child { border-bottom: none; }
+.achievement-icon { font-size: 26px; flex-shrink: 0; }
+.ach-title { font-size: 14px; font-weight: 600; }
+.ach-desc  { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* [10] Win/loss balance animations */
+@keyframes balanceBounce {
+    0%,100% { transform: scale(1); }
+    30%      { transform: scale(1.2); }
+    60%      { transform: scale(0.95); }
+    80%      { transform: scale(1.05); }
+}
+@keyframes balanceShake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-6px); }
+    40%     { transform: translateX(6px); }
+    60%     { transform: translateX(-4px); }
+    80%     { transform: translateX(3px); }
+}
+.balance-win  { animation: balanceBounce 0.6s cubic-bezier(0.36,0.07,0.19,0.97) both; }
+.balance-loss { animation: balanceShake  0.5s cubic-bezier(0.36,0.07,0.19,0.97) both; }
+
+/* [11] Timer urgency (red pulse at ≤5s) */
+@keyframes timerUrgent {
+    from { color: #ff4757; text-shadow: 0 0 0 rgba(255,71,87,0); }
+    to   { color: #ff6b81; text-shadow: 0 0 12px rgba(255,71,87,0.7); }
+}
+.timer-urgent { animation: timerUrgent 0.45s ease-in-out infinite alternate; }
+
+/* [12] Betting locked overlay */
+.betting-locked { position: relative; pointer-events: none !important; }
+.betting-locked::after {
+    content: '🔒  Bets closed — awaiting result';
+    position: absolute; inset: 0; border-radius: 12px;
+    background: rgba(0,0,0,0.52);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+    backdrop-filter: blur(3px); z-index: 20;
+}
+
+/* [13] Win dialog auto-close strip */
+.wd-strip {
+    height: 3px; background: rgba(255,255,255,0.2);
+    border-radius: 3px; overflow: hidden; margin-top: 6px;
+}
+.wd-strip-fill {
+    height: 100%; width: 100%;
+    background: rgba(255,255,255,0.7);
+    border-radius: 3px;
+}
+
+/* [14] Multiplier badge on bet buttons */
+.bet-mult-badge {
+    display: inline-block; font-size: 10px; font-weight: 800;
+    padding: 1px 5px; border-radius: 4px;
+    background: rgba(255,255,255,0.22); color: #fff;
+    margin-left: 4px; vertical-align: middle; letter-spacing: 0.3px;
+}
+
+/* [15] New-round toast (game page) */
+#newRoundToast {
+    position: fixed; top: 72px; left: 50%; transform: translateX(-50%) translateY(-8px);
+    background: rgba(46,213,115,0.92); color: #fff;
+    padding: 7px 20px; border-radius: 20px;
+    font-size: 13px; font-weight: 700;
+    z-index: 9990; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(46,213,115,0.3);
+}
+#newRoundToast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* [16] Login success flash */
+@keyframes successFlash {
+    0%   { background: #2ed573; }
+    100% { background: transparent; }
+}
+.login-success-flash { animation: successFlash 0.6s ease forwards; }
+
+/* [17] Withdraw disabled state */
+.bal-btn-withdraw:disabled {
+    opacity: 0.45; cursor: not-allowed; pointer-events: none;
+}
+
+/* [18] Streak pulse (profile) */
+@keyframes streakPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+.streak-num-active { animation: streakPulse 2s ease-in-out infinite; display: inline-block; }

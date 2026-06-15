@@ -117,17 +117,49 @@
             margin: 0 10px 8px;
         }
 
-        /* ── Win dialog improved ── */
+        /* ── Win / Loss dialog ── */
+        .WinningTip__C.is-win  { animation: scaleIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+        .WinningTip__C.is-loss { animation: shakeIn 0.4s ease both; }
+        @keyframes shakeIn {
+            0%  { transform: scale(0.92) translateX(0); opacity:0; }
+            30% { transform: scale(1.02) translateX(-4px); opacity:1; }
+            50% { transform: scale(1)    translateX(4px); }
+            70% { transform: scale(1)    translateX(-2px); }
+            100%{ transform: scale(1)    translateX(0); opacity:1; }
+        }
+
+        /* Win title — green */
         .WinningTip__C.is-win .WinningTip__C-body-l1 {
             background: linear-gradient(135deg,#2ed573,#26b85b);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
+        /* Loss title — red */
         .WinningTip__C.is-loss .WinningTip__C-body-l1 {
-            background: linear-gradient(135deg,#ff4757,#d63031);
+            background: linear-gradient(135deg,#ff4757,#c0392b);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .WinningTip__C.is-win  { animation: scaleIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
-        .WinningTip__C.is-loss { animation: fadeIn 0.3s ease both; }
+
+        /* Loss dialog body tint */
+        .WinningTip__C.is-loss .WinningTip__C-body {
+            background: linear-gradient(160deg,#1a0005,#2d0a0a) !important;
+            border: 1.5px solid rgba(255,71,87,0.25) !important;
+        }
+        /* Loss "Bonus" label → "Result" */
+        .WinningTip__C.is-loss .WinningTip__C-body-l3 .head {
+            color: rgba(255,71,87,0.7) !important;
+        }
+        /* Loss amount color */
+        .WinningTip__C.is-loss .WinningTip__C-body-l3 .bonus {
+            color: #ff6b81 !important;
+        }
+        /* Loss subtitle emoji bubble */
+        .WinningTip__C-emoji {
+            font-size: 36px; line-height: 1;
+            margin: 4px 0 8px;
+            display: block; text-align: center;
+        }
     </style>
 </head>
 
@@ -5272,7 +5304,8 @@
             <!-- Winning dialog -->
             <div data-v-e44179e3="" data-v-5d71c3fd="" class="WinningTip__C" style="display: none">
                 <div data-v-e44179e3="" class="WinningTip__C-body">
-                    <div data-v-e44179e3="" class="WinningTip__C-body-l1">
+                    <span class="WinningTip__C-emoji" id="dialEmoji">🎉</span>
+                    <div data-v-e44179e3="" class="WinningTip__C-body-l1" id="dialTitle">
                         Congratulations
                     </div>
                     <div data-v-e44179e3="" class="WinningTip__C-body-l2 typeundefined">
@@ -5417,13 +5450,22 @@ function triggerWinEffects(amount) {
 // Hook into game result to show win/loss state on the dialog
 const winDialog = document.querySelector('.WinningTip__C');
 if (winDialog) {
+    const dialTitle = document.getElementById('dialTitle');
+    const dialEmoji = document.getElementById('dialEmoji');
+    const dialHead  = winDialog.querySelector('.WinningTip__C-body-l3 .head');
+
     new MutationObserver(() => {
         const bonusEl = winDialog.querySelector('.bonus');
         if (!bonusEl) return;
         const txt = (bonusEl.textContent || '').trim();
         const isLoss = txt.toLowerCase().includes('lost') || txt === '';
-        winDialog.classList.toggle('is-win', !isLoss);
+
+        winDialog.classList.toggle('is-win',  !isLoss);
         winDialog.classList.toggle('is-loss', isLoss);
+
+        if (dialTitle) dialTitle.textContent = isLoss ? 'Better Luck Next Time' : 'Congratulations!';
+        if (dialEmoji) dialEmoji.textContent = isLoss ? '😔' : '🎉';
+        if (dialHead)  dialHead.textContent  = isLoss ? 'Amount Lost' : 'Bonus';
     }).observe(winDialog, { childList: true, subtree: true });
 }
 
